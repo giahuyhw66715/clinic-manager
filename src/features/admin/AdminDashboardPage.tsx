@@ -48,8 +48,8 @@ export function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Admin Dashboard"
-        description="Clinic overview at a glance"
+        title="Tổng quan quản trị"
+        description="Tổng quan phòng khám trong nháy mắt"
       />
 
       {isLoading ? (
@@ -58,38 +58,38 @@ export function AdminDashboardPage() {
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Appointments today"
+          title="Lịch hẹn hôm nay"
           value={todayAppointments.length}
           icon={CalendarDays}
-          hint={`${consulted} completed`}
+          hint={`${consulted} hoàn tất`}
         />
         <StatCard
-          title="Registered patients"
+          title="Bệnh nhân đã đăng ký"
           value={patients}
           icon={Users}
         />
         <StatCard
-          title="Prescriptions in queue"
+          title="Đơn thuốc trong hàng đợi"
           value={inQueue}
           icon={Activity}
-          hint={`${prescriptions.length} total`}
+          hint={`${prescriptions.length} tổng cộng`}
         />
         <StatCard
-          title="Total revenue"
+          title="Tổng doanh thu"
           value={formatCurrency(revenue?.total ?? 0)}
           icon={DollarSign}
-          hint={`${revenue?.paid ?? 0} collected`}
+          hint={`${revenue?.paid ?? 0} đã thu`}
         />
         <StatCard
-          title="Doctors"
+          title="Bác sĩ"
           value={doctors.length}
           icon={Stethoscope}
         />
         <StatCard
-          title="Medications"
+          title="Thuốc"
           value={medications.length}
           icon={Package}
-          hint={`${lowStock} low stock`}
+          hint={`${lowStock} sắp hết`}
         />
       </div>
 
@@ -97,14 +97,14 @@ export function AdminDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Activity className="h-4 w-4 text-primary" /> Today's appointment summary
+              <Activity className="h-4 w-4 text-primary" /> Tóm tắt lịch hẹn hôm nay
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             {[
-              { label: "Awaiting check-in", count: todayAppointments.filter((a) => ["pending", "confirmed"].includes(a.status)).length },
-              { label: "Checked in / in progress", count: todayAppointments.filter((a) => ["checked-in", "in-progress"].includes(a.status)).length },
-              { label: "Completed", count: consulted },
+              { label: "Chờ check-in", count: todayAppointments.filter((a) => ["pending", "confirmed"].includes(a.status)).length },
+              { label: "Đã check-in / Đang khám", count: todayAppointments.filter((a) => ["checked-in", "in-progress"].includes(a.status)).length },
+              { label: "Hoàn tất", count: consulted },
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between rounded-md border p-3">
                 <span className="text-muted-foreground">{row.label}</span>
@@ -117,7 +117,7 @@ export function AdminDashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <ShieldCheck className="h-4 w-4 text-primary" /> Role distribution
+              <ShieldCheck className="h-4 w-4 text-primary" /> Phân bố vai trò
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">

@@ -37,7 +37,7 @@ export function MyPatientsPage() {
       if (!existing || appointment.appointment_date > existing.last_visit) {
         map.set(appointment.patient.id, {
           id: appointment.patient.id,
-          full_name: appointment.patient.full_name ?? "Unknown",
+          full_name: appointment.patient.full_name ?? "Không rõ",
           phone: appointment.patient.phone,
           last_visit: appointment.appointment_date,
         });
@@ -55,12 +55,12 @@ export function MyPatientsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="My Patients" description="Patients you have consulted" />
+      <PageHeader title="Bệnh nhân của tôi" description="Bệnh nhân bạn đã khám" />
 
       <SearchInput
         value={search}
         onChange={setSearch}
-        placeholder="Search by name or phone..."
+        placeholder="Tìm theo tên hoặc số điện thoại..."
         className="max-w-sm"
       />
 
@@ -68,11 +68,11 @@ export function MyPatientsPage() {
         <CardGridSkeleton className="sm:grid-cols-2 lg:grid-cols-3" />
       ) : filtered.length === 0 ? (
         <EmptyState
-          title={search ? "No matching patients" : "No patients yet"}
+          title={search ? "Không tìm thấy bệnh nhân" : "Chưa có bệnh nhân nào"}
           description={
             search
-              ? "Try a different search term."
-              : "Once you consult patients, they will appear here."
+              ? "Hãy thử từ khóa khác."
+              : "Sau khi bạn khám, bệnh nhân sẽ hiển thị tại đây."
           }
         />
       ) : (
@@ -91,7 +91,7 @@ export function MyPatientsPage() {
                   <div className="min-w-0">
                     <CardTitle className="truncate text-base">{patient.full_name}</CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      {patient.phone ?? "No phone"} · Last visit{" "}
+                      {patient.phone ?? "Không có số điện thoại"} · Khám gần nhất{" "}
                       {patient.last_visit}
                     </p>
                   </div>
@@ -99,11 +99,11 @@ export function MyPatientsPage() {
               </CardHeader>
               <CardContent className="flex items-center justify-between">
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <UserRound className="h-3 w-3" /> Patient
+                  <UserRound className="h-3 w-3" /> Bệnh nhân
                 </span>
                 <Button size="sm" variant="outline" asChild>
                   <Link to={`/app/doctor/patients/${patient.id}`}>
-                    View records <ArrowRight className="h-4 w-4" />
+                    Xem hồ sơ <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>

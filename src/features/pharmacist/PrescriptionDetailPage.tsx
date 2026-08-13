@@ -29,7 +29,7 @@ export function PrescriptionDetailPage() {
       await updatePrescriptionStatus(id, status);
     },
     onSuccess: () => {
-      toast.success("Prescription updated");
+      toast.success("Đã cập nhật đơn thuốc");
       queryClient.invalidateQueries({ queryKey: ["prescription", id] });
       queryClient.invalidateQueries({ queryKey: ["pharmacy-prescriptions"] });
     },
@@ -39,7 +39,7 @@ export function PrescriptionDetailPage() {
   if (isLoading) return <DetailSkeleton />;
   if (!prescription) {
     return (
-      <EmptyState title="Not found" description="This prescription does not exist." />
+      <EmptyState title="Không tìm thấy" description="Đơn thuốc này không tồn tại." />
     );
   }
 
@@ -50,24 +50,24 @@ export function PrescriptionDetailPage() {
 
   const nextAction: { status: PrescriptionStatus; label: string; icon: typeof Send } | null =
     prescription.status === "sent"
-      ? { status: "preparing", label: "Start preparing", icon: PackageCheck }
+      ? { status: "preparing", label: "Bắt đầu chuẩn bị", icon: PackageCheck }
       : prescription.status === "preparing"
-        ? { status: "ready", label: "Mark ready", icon: CheckCheck }
+          ? { status: "ready", label: "Đánh dấu sẵn sàng", icon: CheckCheck }
         : prescription.status === "ready"
-          ? { status: "delivered", label: "Mark delivered", icon: Send }
+          ? { status: "delivered", label: "Đánh dấu đã bàn giao", icon: Send }
           : null;
 
   return (
     <div className="space-y-6">
       <Button variant="ghost" size="sm" asChild className="-ml-2">
         <Link to="/app/pharmacy/queue">
-          <ArrowLeft className="h-4 w-4" /> Back to queue
+          <ArrowLeft className="h-4 w-4" /> Quay lại hàng đợi
         </Link>
       </Button>
 
       <PageHeader
-        title="Prescription"
-        description={`Issued ${formatDateTime(prescription.created_at)}`}
+        title="Đơn thuốc"
+        description={`Cấp lúc ${formatDateTime(prescription.created_at)}`}
       >
         <PrescriptionStatusBadge status={prescription.status} />
       </PageHeader>
@@ -76,7 +76,7 @@ export function PrescriptionDetailPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Patient</CardTitle>
+              <CardTitle className="text-base">Bệnh nhân</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <p className="font-medium">{prescription.patient?.full_name ?? "—"}</p>
@@ -90,7 +90,7 @@ export function PrescriptionDetailPage() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Actions</CardTitle>
+              <CardTitle className="text-base">Thao tác</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {nextAction ? (
@@ -103,7 +103,7 @@ export function PrescriptionDetailPage() {
                 </Button>
               ) : (
                 <Badge variant="success" className="w-full justify-center">
-                  Completed
+                  Hoàn tất
                 </Badge>
               )}
             </CardContent>
@@ -112,9 +112,9 @@ export function PrescriptionDetailPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Medication lines</CardTitle>
+            <CardTitle className="text-base">Chi tiết thuốc</CardTitle>
             <CardDescription>
-              Stock is deducted automatically when the prescription was sent.
+              Tồn kho được trừ tự động khi đơn thuốc được gửi.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -128,7 +128,7 @@ export function PrescriptionDetailPage() {
                     <p className="font-medium">{item.medication?.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {item.dosage ? `${item.dosage} · ` : ""}
-                      Qty {item.quantity}
+                      SL {item.quantity}
                       {item.instructions ? ` · ${item.instructions}` : ""}
                     </p>
                   </div>
@@ -137,14 +137,14 @@ export function PrescriptionDetailPage() {
                       {formatCurrency((item.medication?.price ?? 0) * item.quantity)}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Stock left: {item.medication?.stock_qty ?? "—"}
+                      Còn lại: {item.medication?.stock_qty ?? "—"}
                     </p>
                   </div>
                 </li>
               ))}
             </ul>
             <div className="mt-4 flex justify-end">
-              <span className="text-sm font-semibold">Total: {formatCurrency(total)}</span>
+              <span className="text-sm font-semibold">Tổng cộng: {formatCurrency(total)}</span>
             </div>
           </CardContent>
         </Card>

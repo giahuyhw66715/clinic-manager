@@ -35,48 +35,48 @@ function InvoicePdf({ invoice }: { invoice: Invoice }) {
     <Document>
       <Page size="A4" style={pdfStyles.page}>
         <View style={pdfStyles.header}>
-          <Text style={pdfStyles.clinicName}>ClinicManager</Text>
-          <Text style={pdfStyles.subtitle}>Clinic Invoice</Text>
+          <Text style={pdfStyles.clinicName}>Quản lý Phòng khám</Text>
+          <Text style={pdfStyles.subtitle}>Hóa đơn phòng khám</Text>
         </View>
         <View style={pdfStyles.divider} />
         <View style={pdfStyles.row}>
-          <Text style={pdfStyles.label}>Invoice #{invoice.id.slice(0, 8)}</Text>
+          <Text style={pdfStyles.label}>Hóa đơn #{invoice.id.slice(0, 8)}</Text>
           <Text>{formatDateTime(invoice.created_at)}</Text>
         </View>
         <View style={pdfStyles.row}>
-          <Text style={pdfStyles.label}>Patient</Text>
+          <Text style={pdfStyles.label}>Bệnh nhân</Text>
           <Text>{invoice.patient?.full_name ?? "—"}</Text>
         </View>
         <View style={pdfStyles.row}>
-          <Text style={pdfStyles.label}>Doctor</Text>
-          <Text>Dr. {appointment?.doctor?.profile?.full_name ?? "—"}</Text>
+          <Text style={pdfStyles.label}>Bác sĩ</Text>
+          <Text>BS. {appointment?.doctor?.profile?.full_name ?? "—"}</Text>
         </View>
         {appointment && (
           <View style={pdfStyles.row}>
-            <Text style={pdfStyles.label}>Appointment</Text>
+            <Text style={pdfStyles.label}>Lịch hẹn</Text>
             <Text>
-              {appointment.appointment_date} at {formatTime(appointment.time_slot)}
+              {appointment.appointment_date} lúc {formatTime(appointment.time_slot)}
             </Text>
           </View>
         )}
         <View style={pdfStyles.divider} />
-        <Text style={pdfStyles.sectionTitle}>Breakdown</Text>
+        <Text style={pdfStyles.sectionTitle}>Chi tiết</Text>
         <View style={pdfStyles.row}>
-          <Text style={pdfStyles.label}>Consultation fee</Text>
+          <Text style={pdfStyles.label}>Phí khám</Text>
           <Text>{formatCurrency(consultationFee)}</Text>
         </View>
         <View style={pdfStyles.row}>
-          <Text style={pdfStyles.label}>Medication</Text>
+          <Text style={pdfStyles.label}>Thuốc</Text>
           <Text>{formatCurrency(medicationTotal)}</Text>
         </View>
         <View style={pdfStyles.divider} />
         <View style={pdfStyles.row}>
-          <Text style={pdfStyles.total}>Total</Text>
+          <Text style={pdfStyles.total}>Tổng cộng</Text>
           <Text style={pdfStyles.total}>{formatCurrency(invoice.total_amount)}</Text>
         </View>
         <View style={[pdfStyles.row, { marginTop: 12 }]}>
           <Text style={{ fontWeight: "bold" }}>
-            {invoice.paid ? "PAID" : "UNPAID"}
+            {invoice.paid ? "ĐÃ THANH TOÁN" : "CHƯA THANH TOÁN"}
           </Text>
         </View>
       </Page>
@@ -109,14 +109,14 @@ export function InvoicesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Invoices" description="Your visit and medication invoices" />
+      <PageHeader title="Hóa đơn" description="Hóa đơn khám bệnh và thuốc của bạn" />
 
       {isLoading ? (
         <CardGridSkeleton className="md:grid-cols-1" />
       ) : invoices.length === 0 ? (
         <EmptyState
-          title="No invoices yet"
-          description="Invoices are generated after completed visits."
+          title="Chưa có hóa đơn nào"
+          description="Hóa đơn được tạo sau khi hoàn tất khám bệnh."
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -127,21 +127,21 @@ export function InvoicesPage() {
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Receipt className="h-4 w-4 text-primary" />
                     {invoice.appointment?.doctor?.profile
-                      ? `Dr. ${invoice.appointment.doctor.profile.full_name}`
-                      : "Invoice"}
+                      ? `BS. ${invoice.appointment.doctor.profile.full_name}`
+                      : "Hóa đơn"}
                   </CardTitle>
                   <Badge variant={invoice.paid ? "success" : "warning"}>
-                    {invoice.paid ? "Paid" : "Unpaid"}
+                    {invoice.paid ? "Đã thanh toán" : "Chưa thanh toán"}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <p className="text-muted-foreground">
-                  {invoice.appointment?.appointment_date ?? "—"} at{" "}
+                  {invoice.appointment?.appointment_date ?? "—"} lúc{" "}
                   {invoice.appointment ? formatTime(invoice.appointment.time_slot) : "—"}
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Total</span>
+                  <span className="text-muted-foreground">Tổng cộng</span>
                   <span className="text-lg font-bold">{formatCurrency(invoice.total_amount)}</span>
                 </div>
                 <Button
@@ -150,7 +150,7 @@ export function InvoicesPage() {
                   className="w-full"
                   onClick={() => void downloadInvoice(invoice)}
                 >
-                  <Download className="h-4 w-4" /> Download PDF
+                  <Download className="h-4 w-4" /> Tải PDF
                 </Button>
               </CardContent>
             </Card>

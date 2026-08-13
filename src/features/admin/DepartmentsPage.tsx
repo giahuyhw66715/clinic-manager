@@ -58,7 +58,7 @@ export function DepartmentsPage() {
       }
     },
     onSuccess: () => {
-      toast.success(editing ? "Department updated" : "Department created");
+      toast.success(editing ? "Đã cập nhật khoa khám" : "Đã thêm khoa khám");
       setOpen(false);
       invalidate();
     },
@@ -70,7 +70,7 @@ export function DepartmentsPage() {
       await deleteDepartment(id);
     },
     onSuccess: () => {
-      toast.success("Department deleted");
+      toast.success("Đã xóa khoa khám");
       invalidate();
     },
     onError: (e) => toast.error(e.message),
@@ -78,16 +78,16 @@ export function DepartmentsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Departments" description="Organize doctors by specialty">
+      <PageHeader title="Khoa khám" description="Sắp xếp bác sĩ theo chuyên khoa">
         <Button onClick={() => openEditor()}>
-          <Plus className="h-4 w-4" /> New department
+          <Plus className="h-4 w-4" /> Khoa khám mới
         </Button>
       </PageHeader>
 
       {isLoading ? (
         <CardGridSkeleton />
       ) : departments.length === 0 ? (
-        <EmptyState title="No departments" description="Create departments to organize doctors." />
+        <EmptyState title="Chưa có khoa khám" description="Tạo khoa khám để sắp xếp bác sĩ." />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {departments.map((department) => (
@@ -97,21 +97,21 @@ export function DepartmentsPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  {department.description ?? "No description"}
+                  {department.description ?? "Không có mô tả"}
                 </p>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => openEditor(department)}>
-                    <Pencil className="h-3 w-3" /> Edit
+                    <Pencil className="h-3 w-3" /> Chỉnh sửa
                   </Button>
                   <ConfirmDialog
                     trigger={
                       <Button variant="outline" size="sm" className="text-destructive">
-                        <Trash2 className="h-3 w-3" /> Delete
+                        <Trash2 className="h-3 w-3" /> Xóa
                       </Button>
                     }
-                    title="Delete department?"
-                    description={`Delete "${department.name}"? Doctors in this department may lose their assignment.`}
-                    confirmLabel="Delete"
+                    title="Xóa khoa khám?"
+                    description={`Xóa khoa "${department.name}"? Các bác sĩ thuộc khoa này có thể bị mất phân công.`}
+                    confirmLabel="Xóa"
                     onConfirm={() => deleteMutation.mutate(department.id)}
                   />
                 </div>
@@ -124,20 +124,20 @@ export function DepartmentsPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit department" : "New department"}</DialogTitle>
-            <DialogDescription>Enter the department details.</DialogDescription>
+            <DialogTitle>{editing ? "Chỉnh sửa khoa khám" : "Khoa khám mới"}</DialogTitle>
+            <DialogDescription>Nhập thông tin khoa khám.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Name *</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Cardiology" maxLength={100} />
+              <Label>Tên *</Label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Tim mạch" maxLength={100} />
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>Mô tả</Label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional description"
+                placeholder="Mô tả (tùy chọn)"
                 maxLength={300}
               />
             </div>
@@ -147,7 +147,7 @@ export function DepartmentsPage() {
               onClick={() => saveMutation.mutate()}
               disabled={!name.trim() || saveMutation.isPending}
             >
-              {saveMutation.isPending ? "Saving..." : "Save"}
+              {saveMutation.isPending ? "Đang lưu..." : "Lưu"}
             </Button>
           </DialogFooter>
         </DialogContent>

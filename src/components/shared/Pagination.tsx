@@ -19,7 +19,7 @@ export function Pagination({ page, pageCount, total, onChange }: PaginationProps
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <p className="text-sm text-muted-foreground">
-        Showing {from}–{to} of {total}
+        Hiển thị {from}–{to} trong tổng số {total}
       </p>
       <div className="flex items-center gap-2">
         <Button
@@ -28,7 +28,7 @@ export function Pagination({ page, pageCount, total, onChange }: PaginationProps
           disabled={page <= 1}
           onClick={() => onChange(page - 1)}
         >
-          <ChevronLeft className="h-4 w-4" /> Previous
+          <ChevronLeft className="h-4 w-4" /> Trước
         </Button>
         <Button
           variant="outline"
@@ -36,7 +36,7 @@ export function Pagination({ page, pageCount, total, onChange }: PaginationProps
           disabled={page >= pageCount}
           onClick={() => onChange(page + 1)}
         >
-          Next <ChevronRight className="h-4 w-4" />
+          Sau <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

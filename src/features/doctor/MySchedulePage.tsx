@@ -62,7 +62,7 @@ export function MySchedulePage() {
       });
     },
     onSuccess: () => {
-      toast.success("Day off recorded");
+      toast.success("Đã ghi nhận ngày nghỉ");
       setOffDate(undefined);
       setReason("");
       invalidate();
@@ -75,7 +75,7 @@ export function MySchedulePage() {
       await deleteDoctorOffDay(id);
     },
     onSuccess: () => {
-      toast.success("Removed");
+      toast.success("Đã xóa");
       invalidate();
     },
     onError: (e) => toast.error(e.message),
@@ -84,29 +84,29 @@ export function MySchedulePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="My Schedule"
-        description="Your weekly working hours and days off"
+        title="Lịch làm việc"
+        description="Giờ làm việc hàng tuần và ngày nghỉ của bạn"
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Weekly working hours</CardTitle>
+            <CardTitle className="text-base">Giờ làm việc hàng tuần</CardTitle>
           </CardHeader>
           <CardContent>
             {schedules.length === 0 ? (
               <EmptyState
-                title="No schedule set"
-                description="Your admin has not configured your weekly schedule yet."
+                title="Chưa có lịch làm việc"
+                description="Quản trị viên chưa thiết lập lịch làm việc hàng tuần cho bạn."
               />
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Day</TableHead>
-                    <TableHead>Start</TableHead>
-                    <TableHead>End</TableHead>
-                    <TableHead>Slot</TableHead>
+                    <TableHead>Ngày</TableHead>
+                    <TableHead>Bắt đầu</TableHead>
+                    <TableHead>Kết thúc</TableHead>
+                    <TableHead>Suất khám</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -119,7 +119,7 @@ export function MySchedulePage() {
                         </TableCell>
                         <TableCell>{formatTime(schedule.start_time)}</TableCell>
                         <TableCell>{formatTime(schedule.end_time)}</TableCell>
-                        <TableCell>{schedule.slot_minutes} min</TableCell>
+                        <TableCell>{schedule.slot_minutes} phút</TableCell>
                       </TableRow>
                     ))}
                 </TableBody>
@@ -130,7 +130,7 @@ export function MySchedulePage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Days off</CardTitle>
+            <CardTitle className="text-base">Ngày nghỉ</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto]">
@@ -138,7 +138,7 @@ export function MySchedulePage() {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="justify-start text-left font-normal">
                     <CalendarX className="mr-2 h-4 w-4" />
-                    {offDate ? format(offDate, "MMM d, yyyy") : "Pick a date"}
+                    {offDate ? format(offDate, "dd/MM/yyyy") : "Chọn ngày"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -155,7 +155,7 @@ export function MySchedulePage() {
                 </PopoverContent>
               </Popover>
               <Input
-                placeholder="Reason (optional)"
+                placeholder="Lý do (tùy chọn)"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 maxLength={100}
@@ -164,14 +164,14 @@ export function MySchedulePage() {
                 onClick={() => addOffDayMutation.mutate()}
                 disabled={!offDate || addOffDayMutation.isPending}
               >
-                <Plus className="h-4 w-4" /> Add
+                <Plus className="h-4 w-4" /> Thêm
               </Button>
             </div>
 
             <Separator />
 
             {offDays.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No days off recorded.</p>
+              <p className="text-sm text-muted-foreground">Chưa ghi nhận ngày nghỉ nào.</p>
             ) : (
               <ul className="space-y-2">
                 {offDays.map((off) => (
@@ -180,7 +180,7 @@ export function MySchedulePage() {
                     className="flex items-center justify-between rounded-md border p-3 text-sm"
                   >
                     <div>
-                      <p className="font-medium">{format(parseISO(off.off_date), "MMM d, yyyy")}</p>
+                      <p className="font-medium">{format(parseISO(off.off_date), "dd/MM/yyyy")}</p>
                       {off.reason && (
                         <p className="text-xs text-muted-foreground">{off.reason}</p>
                       )}

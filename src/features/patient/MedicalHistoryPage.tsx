@@ -11,10 +11,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatDateTime } from "@/lib/utils";
 
 const recordFields = [
-  { key: "symptoms", label: "Symptoms" },
-  { key: "diagnosis", label: "Diagnosis" },
-  { key: "treatment_plan", label: "Treatment plan" },
-  { key: "notes", label: "Notes" },
+  { key: "symptoms", label: "Triệu chứng" },
+  { key: "diagnosis", label: "Chẩn đoán" },
+  { key: "treatment_plan", label: "Kế hoạch điều trị" },
+  { key: "notes", label: "Ghi chú" },
 ] as const;
 
 export function MedicalHistoryPage() {
@@ -29,16 +29,16 @@ export function MedicalHistoryPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Medical History"
-        description="Your clinical records across all visits"
+        title="Lịch sử khám bệnh"
+        description="Hồ sơ khám bệnh của bạn qua các lần khám"
       />
 
       {isLoading ? (
         <TimelineSkeleton />
       ) : records.length === 0 ? (
         <EmptyState
-          title="No medical records yet"
-          description="Your doctor's notes will appear here after your visits."
+          title="Chưa có hồ sơ khám nào"
+          description="Ghi chú của bác sĩ sẽ hiển thị tại đây sau mỗi lần khám."
         />
       ) : (
         <div className="relative pl-6">
@@ -52,11 +52,11 @@ export function MedicalHistoryPage() {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <CardTitle className="flex items-center gap-2 text-base">
                         <ClipboardList className="h-4 w-4 text-primary" />
-                        {record.diagnosis ?? "Consultation"}
+                        {record.diagnosis ?? "Buổi khám"}
                       </CardTitle>
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary">
-                          {record.doctor?.profile?.full_name ?? "Doctor"}
+                          {record.doctor?.profile?.full_name ?? "Bác sĩ"}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
                           {formatDateTime(record.created_at)}

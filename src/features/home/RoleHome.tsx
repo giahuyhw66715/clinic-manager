@@ -29,9 +29,9 @@ export function RoleHome() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Welcome</CardTitle>
+        <CardTitle>Chào mừng</CardTitle>
         <CardDescription>
-          Your account needs a valid role. <Link to="/login" className="underline">Sign in again</Link>.
+          Tài khoản của bạn cần có vai trò hợp lệ. <Link to="/login" className="underline">Đăng nhập lại</Link>.
         </CardDescription>
       </CardHeader>
       <CardContent />

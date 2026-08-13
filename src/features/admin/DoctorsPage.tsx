@@ -145,7 +145,7 @@ export function DoctorsPage() {
       }
     },
     onSuccess: () => {
-      toast.success(editing ? "Doctor updated" : "Doctor created");
+      toast.success(editing ? "Đã cập nhật bác sĩ" : "Đã thêm bác sĩ");
       setDialogOpen(false);
       invalidateDoctors();
     },
@@ -157,7 +157,7 @@ export function DoctorsPage() {
       await deleteDoctor(id);
     },
     onSuccess: () => {
-      toast.success("Doctor removed");
+      toast.success("Đã xóa bác sĩ");
       invalidateDoctors();
     },
     onError: (e) => toast.error(e.message),
@@ -184,7 +184,7 @@ export function DoctorsPage() {
       }
     },
     onSuccess: () => {
-      toast.success("Schedules saved");
+      toast.success("Đã lưu lịch làm việc");
       queryClient.invalidateQueries({ queryKey: ["doctor-schedules"] });
       queryClient.invalidateQueries({ queryKey: ["doctor-off-days"] });
       setScheduleDrafts({});
@@ -198,7 +198,7 @@ export function DoctorsPage() {
       await createDoctorOffDay({ doctor_id: schedulesFor.id, off_date: offDay });
     },
     onSuccess: () => {
-      toast.success("Day off added");
+      toast.success("Đã thêm ngày nghỉ");
       setOffDay("");
       queryClient.invalidateQueries({ queryKey: ["doctor-off-days"] });
     },
@@ -217,9 +217,9 @@ export function DoctorsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Doctors & Schedules" description="Manage medical staff">
+      <PageHeader title="Bác sĩ & Lịch làm việc" description="Quản lý đội ngũ y tế">
         <Button onClick={() => openEditor()}>
-          <Plus className="h-4 w-4" /> Add doctor
+          <Plus className="h-4 w-4" /> Thêm bác sĩ
         </Button>
       </PageHeader>
 
@@ -227,19 +227,19 @@ export function DoctorsPage() {
         <TableSkeleton />
       ) : doctors.length === 0 ? (
         <EmptyState
-          title="No doctors yet"
-          description="Promote a user to doctor role, then add them here."
+          title="Chưa có bác sĩ nào"
+          description="Nâng vai trò người dùng thành bác sĩ, sau đó thêm họ vào đây."
         />
       ) : (
         <Card className="overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Doctor</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Specialty</TableHead>
-                <TableHead className="text-right">Fee</TableHead>
-                <TableHead className="w-36">Actions</TableHead>
+                <TableHead>Bác sĩ</TableHead>
+                <TableHead>Khoa khám</TableHead>
+                <TableHead>Chuyên khoa</TableHead>
+                <TableHead className="text-right">Phí khám</TableHead>
+                <TableHead className="w-36">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -267,9 +267,9 @@ export function DoctorsPage() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         }
-                        title="Remove doctor?"
-                        description={`Remove ${doctor.profile?.full_name ?? "this doctor"} from the practice?`}
-                        confirmLabel="Remove"
+                        title="Xóa bác sĩ?"
+                        description={`Xóa ${doctor.profile?.full_name ?? "bác sĩ này"} khỏi phòng khám?`}
+                        confirmLabel="Xóa"
                         onConfirm={() => deleteDoctorMutation.mutate(doctor.id)}
                       />
                     </div>
@@ -285,16 +285,16 @@ export function DoctorsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit doctor" : "Add doctor"}</DialogTitle>
+            <DialogTitle>{editing ? "Chỉnh sửa bác sĩ" : "Thêm bác sĩ"}</DialogTitle>
             <DialogDescription>
               {editing
-                ? "Update doctor details."
-                : "Select a user with the doctor role."}
+                ? "Cập nhật thông tin bác sĩ."
+                : "Chọn người dùng có vai trò bác sĩ."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Doctor account *</Label>
+              <Label>Tài khoản bác sĩ *</Label>
               {editing ? (
                 <Input
                   value={editing.profile?.full_name ?? editing.profile?.email ?? ""}
@@ -306,7 +306,7 @@ export function DoctorsPage() {
                   onValueChange={(v) => setForm((f) => ({ ...f, user_id: v }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select user with doctor role" />
+                    <SelectValue placeholder="Chọn người dùng có vai trò bác sĩ" />
                   </SelectTrigger>
                   <SelectContent>
                     {doctorCandidates.map((p) => (
@@ -320,13 +320,13 @@ export function DoctorsPage() {
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Department *</Label>
+                <Label>Khoa khám *</Label>
                 <Select
                   value={form.department_id || undefined}
                   onValueChange={(v) => setForm((f) => ({ ...f, department_id: v }))}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select department" />
+                    <SelectValue placeholder="Chọn khoa khám" />
                   </SelectTrigger>
                   <SelectContent>
                     {departments.map((d) => (
@@ -338,18 +338,18 @@ export function DoctorsPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Specialty *</Label>
+                <Label>Chuyên khoa *</Label>
                 <Input
                   value={form.specialty}
                   onChange={(e) => setForm((f) => ({ ...f, specialty: e.target.value }))}
-                  placeholder="Internal Medicine"
+                  placeholder="Nội khoa"
                   maxLength={100}
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Consultation fee</Label>
+                <Label>Phí khám</Label>
                 <Input
                   type="number"
                   min={0}
@@ -360,11 +360,11 @@ export function DoctorsPage() {
               {/* spacer */}
             </div>
             <div className="space-y-2">
-              <Label>Bio</Label>
+              <Label>Giới thiệu</Label>
               <Input
                 value={form.bio}
                 onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))}
-                placeholder="Short bio (optional)"
+                placeholder="Giới thiệu ngắn (tùy chọn)"
                 maxLength={100}
               />
             </div>
@@ -379,7 +379,7 @@ export function DoctorsPage() {
                 saveDoctorMutation.isPending
               }
             >
-              {saveDoctorMutation.isPending ? "Saving..." : "Save"}
+              {saveDoctorMutation.isPending ? "Đang lưu..." : "Lưu"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -391,10 +391,10 @@ export function DoctorsPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Stethoscope className="h-4 w-4" />
-              {schedulesFor?.profile?.full_name ?? "Doctor"} — Weekly schedule
+              {schedulesFor?.profile?.full_name ?? "Bác sĩ"} — Lịch làm việc tuần
             </DialogTitle>
             <DialogDescription>
-              Set recurring slots per weekday. Leave a row empty to disable that day.
+              Thiết lập các suất khám lặp lại theo ngày trong tuần. Để trống một dòng để tắt ngày đó.
             </DialogDescription>
           </DialogHeader>
 
@@ -408,7 +408,7 @@ export function DoctorsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Start</Label>
+                      <Label className="text-xs text-muted-foreground">Bắt đầu</Label>
                       <Input
                         type="time"
                         className="h-8 w-28"
@@ -422,7 +422,7 @@ export function DoctorsPage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">End</Label>
+                      <Label className="text-xs text-muted-foreground">Kết thúc</Label>
                       <Input
                         type="time"
                         className="h-8 w-28"
@@ -436,7 +436,7 @@ export function DoctorsPage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Slots</Label>
+                      <Label className="text-xs text-muted-foreground">Suất khám</Label>
                       <Input
                         type="number"
                         className="h-8 w-20"
@@ -453,7 +453,7 @@ export function DoctorsPage() {
                   </div>
                   {draft.id && (
                     <Badge variant="secondary" className="mb-1.5">
-                      set
+                      đã lưu
                     </Badge>
                   )}
                 </div>
@@ -463,7 +463,7 @@ export function DoctorsPage() {
 
           <Separator />
           <div>
-            <Label className="mb-2 block text-xs text-muted-foreground">Days off</Label>
+            <Label className="mb-2 block text-xs text-muted-foreground">Ngày nghỉ</Label>
             <div className="flex items-center gap-2">
               <Input
                 type="date"
@@ -476,14 +476,14 @@ export function DoctorsPage() {
                 onClick={() => addOffDayMutation.mutate()}
                 disabled={!offDay}
               >
-                Add
+                Thêm
               </Button>
             </div>
             {doctorOffDays.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-2">
                 {doctorOffDays.map((off) => (
                   <Badge key={off.id} variant="outline" className="gap-1">
-                    {format(parseISO(off.off_date), "MMM d, yyyy")}
+                    {format(parseISO(off.off_date), "dd/MM/yyyy")}
                     <button
                       className="text-muted-foreground hover:text-destructive"
                       onClick={() => removeOffDayMutation.mutate(off.id)}
@@ -501,7 +501,7 @@ export function DoctorsPage() {
               onClick={() => saveScheduleMutation.mutate()}
               disabled={saveScheduleMutation.isPending}
             >
-              {saveScheduleMutation.isPending ? "Saving..." : "Save schedules"}
+              {saveScheduleMutation.isPending ? "Đang lưu..." : "Lưu lịch làm việc"}
             </Button>
           </DialogFooter>
         </DialogContent>

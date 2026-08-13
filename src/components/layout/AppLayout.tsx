@@ -35,35 +35,35 @@ interface NavItem {
 
 const navByRole: Record<string, NavItem[]> = {
   patient: [
-    { to: "/app/appointments", label: "My Appointments", icon: CalendarDays },
-    { to: "/app/history", label: "Medical History", icon: History },
-    { to: "/app/prescriptions", label: "My Prescriptions", icon: FileText },
-    { to: "/app/invoices", label: "Invoices", icon: Receipt },
+    { to: "/app/appointments", label: "Lịch hẹn của tôi", icon: CalendarDays },
+    { to: "/app/history", label: "Lịch sử khám bệnh", icon: History },
+    { to: "/app/prescriptions", label: "Đơn thuốc của tôi", icon: FileText },
+    { to: "/app/invoices", label: "Hóa đơn", icon: Receipt },
   ],
   doctor: [
-    { to: "/app/doctor/queue", label: "Appointments", icon: Activity },
-    { to: "/app/doctor/patients", label: "My Patients", icon: Users },
-    { to: "/app/doctor/schedule", label: "My Schedule", icon: CalendarDays },
+    { to: "/app/doctor/queue", label: "Lịch hẹn", icon: Activity },
+    { to: "/app/doctor/patients", label: "Bệnh nhân của tôi", icon: Users },
+    { to: "/app/doctor/schedule", label: "Lịch làm việc", icon: CalendarDays },
   ],
   pharmacist: [
-    { to: "/app/pharmacy/queue", label: "Prescription Queue", icon: Activity },
+    { to: "/app/pharmacy/queue", label: "Hàng đợi đơn thuốc", icon: Activity },
     { to: "/app/pharmacy/checkin", label: "Check-in", icon: UserRound },
-    { to: "/app/pharmacy/inventory", label: "Inventory", icon: Package },
+    { to: "/app/pharmacy/inventory", label: "Kho thuốc", icon: Package },
   ],
   admin: [
-    { to: "/app/admin", label: "Dashboard", icon: LayoutDashboard },
-    { to: "/app/admin/users", label: "Users & Roles", icon: Users },
-    { to: "/app/admin/doctors", label: "Doctors & Schedules", icon: Stethoscope },
-    { to: "/app/admin/departments", label: "Departments", icon: ShieldCheck },
-    { to: "/app/admin/medications", label: "Medications", icon: Pill },
+    { to: "/app/admin", label: "Tổng quan", icon: LayoutDashboard },
+    { to: "/app/admin/users", label: "Người dùng & Vai trò", icon: Users },
+    { to: "/app/admin/doctors", label: "Bác sĩ & Lịch làm việc", icon: Stethoscope },
+    { to: "/app/admin/departments", label: "Khoa khám", icon: ShieldCheck },
+    { to: "/app/admin/medications", label: "Thuốc", icon: Pill },
   ],
 };
 
 const roleLabel: Record<string, string> = {
-  patient: "Patient",
-  doctor: "Doctor",
-  pharmacist: "Pharmacist",
-  admin: "Admin",
+  patient: "Bệnh nhân",
+  doctor: "Bác sĩ",
+  pharmacist: "Dược sĩ",
+  admin: "Quản trị viên",
 };
 
 function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
@@ -112,7 +112,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Stethoscope className="h-5 w-5" />
         </div>
-        <span className="text-lg font-bold">ClinicManager</span>
+        <span className="text-lg font-bold">Quản lý Phòng khám</span>
       </Link>
       <ScrollArea className="flex-1 px-3">
         <NavLinks items={navItems} />
@@ -131,7 +131,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-72 p-0">
           <SheetHeader className="sr-only">
-            <SheetTitle>Navigation</SheetTitle>
+            <SheetTitle>Điều hướng</SheetTitle>
           </SheetHeader>
           {sidebar}
         </SheetContent>
@@ -153,14 +153,14 @@ export function AppLayout({ children }: { children: ReactNode }) {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 rounded-full outline-none">
                   <Avatar>
-                    <AvatarFallback>{initials(profile.full_name ?? "User")}</AvatarFallback>
+                    <AvatarFallback>{initials(profile.full_name ?? "Người dùng")}</AvatarFallback>
                   </Avatar>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col gap-1">
-                    <span className="truncate">{profile.full_name ?? "User"}</span>
+                    <span className="truncate">{profile.full_name ?? "Người dùng"}</span>
                     <span className="text-xs font-normal text-muted-foreground">
                       {roleLabel[profile.role]}
                     </span>
@@ -169,7 +169,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="h-4 w-4" />
-                  Sign out
+                  Đăng xuất
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

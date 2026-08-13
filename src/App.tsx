@@ -66,17 +66,17 @@ function ProtectedRoutes() {
   if (!profile) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-2 p-6 text-center">
-        <h1 className="text-lg font-semibold">Profile not found</h1>
+        <h1 className="text-lg font-semibold">Không tìm thấy hồ sơ</h1>
         <p className="text-sm text-muted-foreground">
-          Your account doesn't have a profile yet. Please contact your administrator or sign out and
-          try again.
+          Tài khoản của bạn chưa có hồ sơ. Vui lòng liên hệ quản trị viên hoặc đăng xuất rồi thử
+          lại.
         </p>
         <button
           type="button"
           className="mt-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           onClick={() => void signOut()}
         >
-          Sign out
+          Đăng xuất
         </button>
       </div>
     );

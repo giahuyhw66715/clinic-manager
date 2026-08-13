@@ -17,7 +17,7 @@ export function SearchInput({ value, onChange, placeholder, className }: SearchI
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder ?? "Search..."}
+          placeholder={placeholder ?? "Tìm kiếm..."}
           className="pl-8"
         />
       </div>

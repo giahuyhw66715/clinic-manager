@@ -94,7 +94,7 @@ export function InventoryPage() {
       }
     },
     onSuccess: () => {
-      toast.success(editor.medication ? "Medication updated" : "Medication created");
+      toast.success(editor.medication ? "Đã cập nhật thuốc" : "Đã thêm thuốc");
       setEditor({ medication: null, open: false });
       invalidate();
     },
@@ -106,7 +106,7 @@ export function InventoryPage() {
       await deleteMedication(id);
     },
     onSuccess: () => {
-      toast.success("Medication deleted");
+      toast.success("Đã xóa thuốc");
       invalidate();
     },
     onError: (e) => toast.error(e.message),
@@ -115,11 +115,11 @@ export function InventoryPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Inventory"
-        description="Medication stock and dispensing catalog"
+        title="Kho thuốc"
+        description="Danh mục thuốc và tồn kho"
       >
         <Button onClick={() => openEditor()}>
-          <Plus className="h-4 w-4" /> Add medication
+          <Plus className="h-4 w-4" /> Thêm thuốc
         </Button>
       </PageHeader>
 
@@ -128,8 +128,8 @@ export function InventoryPage() {
           <CardContent className="flex items-center gap-3 p-4 text-sm text-amber-800">
             <TriangleAlert className="h-5 w-5 shrink-0" />
             <span>
-              <span className="font-semibold">{lowCount} medication(s)</span> at or below their
-              reorder level. Restock soon to avoid holding up prescriptions.
+              <span className="font-semibold">{lowCount} loại thuốc</span> đang ở mức dưới ngưỡng
+              nhập lại. Hãy nhập thêm hàng để tránh gián đoạn đơn thuốc.
             </span>
           </CardContent>
         </Card>
@@ -139,20 +139,20 @@ export function InventoryPage() {
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search by name..."
+          placeholder="Tìm theo tên..."
           className="w-full max-w-sm"
         />
         <Tabs value={tab} onValueChange={(v) => setTab(v as "all" | "low")}>
           <TabsList>
-            <TabsTrigger value="all">All ({medications.length})</TabsTrigger>
-            <TabsTrigger value="low">Low stock ({lowCount})</TabsTrigger>
+            <TabsTrigger value="all">Tất cả ({medications.length})</TabsTrigger>
+            <TabsTrigger value="low">Sắp hết ({lowCount})</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
       <div className="flex flex-wrap gap-2">
         {medications.filter((m) => m.stock_qty <= m.reorder_level).slice(0, 8).map((m) => (
           <Badge key={m.id} variant="warning">
-            {m.name}: {m.stock_qty} left
+            {m.name}: còn {m.stock_qty}
           </Badge>
         ))}
       </div>
@@ -161,11 +161,11 @@ export function InventoryPage() {
         <TableSkeleton />
       ) : filtered.length === 0 ? (
         <EmptyState
-          title={tab === "low" ? "No low-stock items" : "No medications"}
+          title={tab === "low" ? "Không có thuốc sắp hết" : "Chưa có thuốc nào"}
           description={
             tab === "low"
-              ? "All medications are above their reorder level."
-              : "Add medications to build your catalog."
+              ? "Tất cả thuốc đều trên ngưỡng nhập lại."
+              : "Thêm thuốc để xây dựng danh mục."
           }
         />
       ) : (
@@ -173,13 +173,13 @@ export function InventoryPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Unit</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead className="text-right">Stock</TableHead>
-                <TableHead className="text-right">Reorder at</TableHead>
-                <TableHead className="w-24">Actions</TableHead>
+                <TableHead>Tên</TableHead>
+                <TableHead>Mô tả</TableHead>
+                <TableHead>Đơn vị</TableHead>
+                <TableHead className="text-right">Giá</TableHead>
+                <TableHead className="text-right">Tồn kho</TableHead>
+                <TableHead className="text-right">Ngưỡng nhập lại</TableHead>
+                <TableHead className="w-24">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -219,9 +219,9 @@ export function InventoryPage() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         }
-                        title="Delete medication?"
-                        description={`Delete "${medication.name}" from the catalog?`}
-                        confirmLabel="Delete"
+                        title="Xóa thuốc?"
+                        description={`Xóa thuốc "${medication.name}" khỏi danh mục?`}
+                        confirmLabel="Xóa"
                         onConfirm={() => deleteMutation.mutate(medication.id)}
                       />
                     </div>
@@ -236,15 +236,15 @@ export function InventoryPage() {
       <Dialog open={editor.open} onOpenChange={(open) => setEditor((e) => ({ ...e, open }))}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editor.medication ? "Edit medication" : "Add medication"}</DialogTitle>
+            <DialogTitle>{editor.medication ? "Chỉnh sửa thuốc" : "Thêm thuốc"}</DialogTitle>
             <DialogDescription>
-              Define the medication used in prescriptions.
+              Thiết lập thuốc dùng trong đơn thuốc.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Name *</Label>
+                <Label>Tên *</Label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
@@ -253,27 +253,27 @@ export function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Dosage unit</Label>
+                <Label>Đơn vị liều</Label>
                 <Input
                   value={form.dosage_unit}
                   onChange={(e) => setForm((f) => ({ ...f, dosage_unit: e.target.value }))}
-                  placeholder="tablet"
+                  placeholder="viên"
                   maxLength={100}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>Mô tả</Label>
               <Input
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                placeholder="Optional description"
+                placeholder="Mô tả (tùy chọn)"
                 maxLength={100}
               />
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-2">
-                <Label>Price</Label>
+                <Label>Giá</Label>
                 <Input
                   type="number"
                   min={0}
@@ -282,7 +282,7 @@ export function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Stock</Label>
+                <Label>Tồn kho</Label>
                 <Input
                   type="number"
                   min={0}
@@ -291,7 +291,7 @@ export function InventoryPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Reorder at</Label>
+                <Label>Ngưỡng nhập lại</Label>
                 <Input
                   type="number"
                   min={0}
@@ -306,7 +306,7 @@ export function InventoryPage() {
               onClick={() => saveMutation.mutate()}
               disabled={!form.name.trim() || saveMutation.isPending}
             >
-              {saveMutation.isPending ? "Saving..." : "Save"}
+              {saveMutation.isPending ? "Đang lưu..." : "Lưu"}
             </Button>
           </DialogFooter>
         </DialogContent>

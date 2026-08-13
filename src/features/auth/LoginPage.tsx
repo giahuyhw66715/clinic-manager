@@ -26,8 +26,8 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 
 const loginSchema = z.object({
-  email: z.string().email("Enter a valid email").max(100, "Email must be under 100 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters").max(100, "Password must be under 100 characters"),
+  email: z.string().email("Vui lòng nhập email hợp lệ").max(100, "Email không được quá 100 ký tự"),
+  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").max(100, "Mật khẩu không được quá 100 ký tự"),
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
@@ -53,12 +53,12 @@ export function LoginPage() {
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Stethoscope className="h-5 w-5" />
         </div>
-        <span className="text-xl font-bold">ClinicManager</span>
+        <span className="text-xl font-bold">Quản lý Phòng khám</span>
       </div>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Sign in</CardTitle>
-          <CardDescription>Access your clinic account</CardDescription>
+          <CardTitle>Đăng nhập</CardTitle>
+          <CardDescription>Đăng nhập vào tài khoản phòng khám</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -81,7 +81,7 @@ export function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password *</FormLabel>
+                    <FormLabel>Mật khẩu *</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" maxLength={100} {...field} />
                     </FormControl>
@@ -90,16 +90,16 @@ export function LoginPage() {
                 )}
               />
               <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Signing in..." : "Sign in"}
+                {form.formState.isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="justify-center">
           <p className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            Chưa có tài khoản?{" "}
             <Link to="/register" className="font-medium text-primary underline-offset-4 hover:underline">
-              Register
+              Đăng ký
             </Link>
           </p>
         </CardFooter>

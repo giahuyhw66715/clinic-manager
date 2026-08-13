@@ -18,11 +18,11 @@ import { formatDateTime } from "@/lib/utils";
 import type { PrescriptionStatus } from "@/types";
 
 const statusTabs: { value: PrescriptionStatus | "all"; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "sent", label: "Sent" },
-  { value: "preparing", label: "Preparing" },
-  { value: "ready", label: "Ready" },
-  { value: "delivered", label: "Delivered" },
+  { value: "all", label: "Tất cả" },
+  { value: "sent", label: "Đã gửi" },
+  { value: "preparing", label: "Đang chuẩn bị" },
+  { value: "ready", label: "Sẵn sàng" },
+  { value: "delivered", label: "Đã bàn giao" },
 ];
 
 export function PrescriptionQueuePage() {
@@ -62,7 +62,7 @@ export function PrescriptionQueuePage() {
       await updatePrescriptionStatus(id, status);
     },
     onSuccess: () => {
-      toast.success("Prescription updated");
+      toast.success("Đã cập nhật đơn thuốc");
       queryClient.invalidateQueries({ queryKey: ["pharmacy-prescriptions"] });
     },
     onError: (e) => toast.error(e.message),
@@ -71,8 +71,8 @@ export function PrescriptionQueuePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Prescription Queue"
-        description="New prescription from doctors arrive here in real time"
+        title="Hàng đợi đơn thuốc"
+        description="Đơn thuốc mới từ bác sĩ hiển thị tại đây theo thời gian thực"
       />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as PrescriptionStatus | "all")}>
@@ -89,8 +89,8 @@ export function PrescriptionQueuePage() {
         <CardGridSkeleton className="lg:grid-cols-2" />
       ) : filtered.length === 0 ? (
         <EmptyState
-          title={tab === "all" ? "No prescriptions yet" : `No ${tab} prescriptions`}
-          description="Prescriptions will appear here as soon as doctors send them."
+          title={tab === "all" ? "Chưa có đơn thuốc nào" : `Không có đơn thuốc ${tab}`}
+          description="Đơn thuốc sẽ hiển thị tại đây ngay khi bác sĩ gửi."
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -101,10 +101,10 @@ export function PrescriptionQueuePage() {
                   <div className="min-w-0">
                     <CardTitle className="flex items-center gap-2 text-base">
                       <ClipboardList className="h-4 w-4 shrink-0 text-primary" />
-                      <span className="truncate">{prescription.patient?.full_name ?? "Patient"}</span>
+                      <span className="truncate">{prescription.patient?.full_name ?? "Bệnh nhân"}</span>
                     </CardTitle>
                     <CardDescription>
-                      {prescription.doctor?.profile?.full_name ?? "Unknown"} ·{" "}
+                      {prescription.doctor?.profile?.full_name ?? "Không rõ"} ·{" "}
                       {formatDateTime(prescription.created_at)}
                     </CardDescription>
                   </div>
@@ -129,8 +129,7 @@ export function PrescriptionQueuePage() {
                   ))}
                   {prescription.items.length > 4 && (
                     <li className="rounded-md border border-dashed px-3 py-2 text-xs text-muted-foreground">
-                      +{prescription.items.length - 4} more item
-                      {prescription.items.length - 4 > 1 ? "s" : ""}
+                      +{prescription.items.length - 4} mục nữa
                     </li>
                   )}
                 </ul>
@@ -150,7 +149,7 @@ export function PrescriptionQueuePage() {
                       }
                       disabled={statusMutation.isPending}
                     >
-                      <PackageCheck className="h-4 w-4" /> Start preparing
+                      <PackageCheck className="h-4 w-4" /> Bắt đầu chuẩn bị
                     </Button>
                   )}
                   {prescription.status === "preparing" && (
@@ -161,7 +160,7 @@ export function PrescriptionQueuePage() {
                       }
                       disabled={statusMutation.isPending}
                     >
-                      <CheckCheck className="h-4 w-4" /> Mark ready
+                      <CheckCheck className="h-4 w-4" /> Đánh dấu sẵn sàng
                     </Button>
                   )}
                   {prescription.status === "ready" && (
@@ -172,11 +171,11 @@ export function PrescriptionQueuePage() {
                       }
                       disabled={statusMutation.isPending}
                     >
-                      <Send className="h-4 w-4" /> Mark delivered
+                      <Send className="h-4 w-4" /> Đánh dấu đã bàn giao
                     </Button>
                   )}
                   {prescription.status === "delivered" && (
-                    <Badge variant="success">Handed to patient</Badge>
+                    <Badge variant="success">Đã bàn giao cho bệnh nhân</Badge>
                   )}
                 </div>
               </CardContent>

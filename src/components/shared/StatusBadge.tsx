@@ -2,20 +2,20 @@ import { Badge } from "@/components/ui/badge";
 import type { AppointmentStatus, PrescriptionStatus } from "@/types";
 
 const appointmentStatusConfig: Record<AppointmentStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info" }> = {
-  pending: { label: "Pending", variant: "warning" },
-  confirmed: { label: "Confirmed", variant: "info" },
-  "checked-in": { label: "Checked in", variant: "secondary" },
-  "in-progress": { label: "In progress", variant: "default" },
-  completed: { label: "Completed", variant: "success" },
-  cancelled: { label: "Cancelled", variant: "destructive" },
-  "no-show": { label: "No-show", variant: "destructive" },
+  pending: { label: "Chờ xác nhận", variant: "warning" },
+  confirmed: { label: "Đã xác nhận", variant: "info" },
+  "checked-in": { label: "Đã đến", variant: "secondary" },
+  "in-progress": { label: "Đang khám", variant: "default" },
+  completed: { label: "Hoàn tất", variant: "success" },
+  cancelled: { label: "Đã hủy", variant: "destructive" },
+  "no-show": { label: "Vắng mặt", variant: "destructive" },
 };
 
 const prescriptionStatusConfig: Record<PrescriptionStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info" }> = {
-  sent: { label: "Sent", variant: "warning" },
-  preparing: { label: "Preparing", variant: "info" },
-  ready: { label: "Ready", variant: "success" },
-  delivered: { label: "Delivered", variant: "default" },
+  sent: { label: "Đã gửi", variant: "warning" },
+  preparing: { label: "Đang chuẩn bị", variant: "info" },
+  ready: { label: "Sẵn sàng", variant: "success" },
+  delivered: { label: "Đã bàn giao", variant: "default" },
 };
 
 export function AppointmentStatusBadge({ status }: { status: AppointmentStatus }) {

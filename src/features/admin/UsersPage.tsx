@@ -56,7 +56,7 @@ export function UsersPage() {
       await updateProfileRole(id, role);
     },
     onSuccess: (_data, variables) => {
-      toast.success("Role updated");
+      toast.success("Đã cập nhật vai trò");
       setDraft((d) => {
         const next = { ...d };
         delete next[variables.id];
@@ -70,31 +70,31 @@ export function UsersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Users & Roles"
-        description="Assign roles and manage accounts"
+        title="Người dùng & Vai trò"
+        description="Phân vai trò và quản lý tài khoản"
       />
 
       <SearchInput
         value={search}
         onChange={setSearch}
-        placeholder="Search by name, email, or phone..."
+        placeholder="Tìm theo tên, email hoặc số điện thoại..."
         className="max-w-sm"
       />
 
       {isLoading ? (
         <TableSkeleton />
       ) : filtered.length === 0 ? (
-        <EmptyState title="No users found" />
+        <EmptyState title="Không tìm thấy người dùng" />
       ) : (
         <Card className="overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead className="w-44">Role</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead className="w-24">Save</TableHead>
+                <TableHead>Người dùng</TableHead>
+                <TableHead>Liên hệ</TableHead>
+                <TableHead className="w-44">Vai trò</TableHead>
+                <TableHead>Tham gia</TableHead>
+                <TableHead className="w-24">Lưu</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -158,7 +158,7 @@ export function UsersPage() {
                         }
                         disabled={roleMutation.isPending}
                       >
-                        <Save className="h-3 w-3" /> Save
+                        <Save className="h-3 w-3" /> Lưu
                       </Button>
                     )}
                   </TableCell>

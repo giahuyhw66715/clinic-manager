@@ -82,13 +82,13 @@ export function PrescriptionForm({
         (a) => a.medication_id === medication.id || (a.allergen ?? "").toLowerCase() === medication.name.toLowerCase(),
       );
       for (const a of match) {
-        result.push(`${medication.name} — patient allergy (${a.severity}). ${a.allergen ?? ""}`.trim());
+        result.push(`${medication.name} — bệnh nhân dị ứng (${a.severity}). ${a.allergen ?? ""}`.trim());
       }
       if (
         patientProfile.data?.allergies &&
         patientProfile.data.allergies.toLowerCase().includes(medication.name.toLowerCase())
       ) {
-        result.push(`${medication.name} — matches a known allergy listed in the patient profile.`);
+        result.push(`${medication.name} — trùng với dị ứng đã ghi nhận trong hồ sơ bệnh nhân.`);
       }
     }
     return result;
@@ -108,7 +108,7 @@ export function PrescriptionForm({
           const a = medications.find((m) => m.id === pair.medication_a_id)?.name;
           const b = medications.find((m) => m.id === pair.medication_b_id)?.name;
           result.push(
-            `${a} + ${b} — potential drug interaction (${pair.severity}). ${pair.description ?? ""}`.trim(),
+            `${a} + ${b} — có thể tương tác thuốc (${pair.severity}). ${pair.description ?? ""}`.trim(),
           );
         }
       }
@@ -122,10 +122,10 @@ export function PrescriptionForm({
       const medication = medications.find((m) => m.id === line.medicationId);
       if (!medication) continue;
       if (medication.stock_qty <= 0) {
-        result.push(`${medication.name} is out of stock.`);
+        result.push(`${medication.name} đã hết hàng.`);
       } else if (line.quantity > medication.stock_qty) {
         result.push(
-          `${medication.name}: requested ${line.quantity}, only ${medication.stock_qty} in stock.`,
+          `${medication.name}: yêu cầu ${line.quantity}, chỉ còn ${medication.stock_qty} trong kho.`,
         );
       }
     }
@@ -137,7 +137,7 @@ export function PrescriptionForm({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!isValid) throw new Error("Please complete at least one line");
+      if (!isValid) throw new Error("Vui lòng điền ít nhất một dòng");
       const items = lines
         .filter((l) => l.medicationId)
         .map((l) => ({
@@ -155,12 +155,12 @@ export function PrescriptionForm({
       });
       await createNotification(patientId, {
         type: "prescription",
-        title: "New prescription issued",
-        body: `A new prescription (${items.length} items) has been sent to the pharmacy.`,
+        title: "Đơn thuốc mới đã được kê",
+        body: `Đơn thuốc mới (${items.length} mục) đã được gửi tới nhà thuốc.`,
       });
     },
     onSuccess: () => {
-      toast.success("Prescription sent to pharmacy");
+      toast.success("Đã gửi đơn thuốc cho nhà thuốc");
       queryClient.invalidateQueries({ queryKey: ["prescriptions"] });
       onSuccess?.();
       setLines([{ medicationId: "", dosage: "", quantity: 1, instructions: "" }]);
@@ -187,7 +187,7 @@ export function PrescriptionForm({
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Pill className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Medication {index + 1}</span>
+                  <span className="text-sm font-medium">Thuốc {index + 1}</span>
                 </div>
                 {lines.length > 1 && (
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeLine(index)}>
@@ -211,21 +211,21 @@ export function PrescriptionForm({
                     className="w-full justify-between"
                   >
                     {medication
-                      ? `${medication.name} — $${medication.price}/unit · stock ${medication.stock_qty}`
-                      : "Search medication..."}
+                      ? `${medication.name} — $${medication.price}/đơn vị · tồn ${medication.stock_qty}`
+                      : "Tìm thuốc..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
                   <Command shouldFilter={false}>
                     <CommandInput
-                      placeholder="Search by name..."
+                      placeholder="Tìm theo tên..."
                       value={search}
                       onValueChange={setSearch}
                       className="h-9"
                     />
                     <CommandList>
-                      <CommandEmpty>No medication found</CommandEmpty>
+                      <CommandEmpty>Không tìm thấy thuốc</CommandEmpty>
                       <CommandGroup>
                         {filteredMedications.map((med) => (
                           <CommandItem
@@ -247,7 +247,7 @@ export function PrescriptionForm({
                               <div className="flex items-center gap-2">
                                 {med.stock_qty <= med.reorder_level && (
                                   <Badge variant={med.stock_qty <= 0 ? "destructive" : "warning"}>
-                                    {med.stock_qty <= 0 ? "Out of stock" : "Low stock"}
+                                    {med.stock_qty <= 0 ? "Hết hàng" : "Sắp hết"}
                                   </Badge>
                                 )}
                                 <span className="text-xs text-muted-foreground">
@@ -265,16 +265,16 @@ export function PrescriptionForm({
 
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Dosage</Label>
+                  <Label className="text-xs text-muted-foreground">Liều dùng</Label>
                   <Input
-                    placeholder="e.g. 500mg 3x/day"
+                    placeholder="VD: 500mg 3 lần/ngày"
                     value={line.dosage}
                     onChange={(e) => updateLine(index, { dosage: e.target.value })}
                     maxLength={100}
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Quantity</Label>
+                  <Label className="text-xs text-muted-foreground">Số lượng</Label>
                   <Input
                     type="number"
                     min={1}
@@ -285,9 +285,9 @@ export function PrescriptionForm({
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Instructions</Label>
+                  <Label className="text-xs text-muted-foreground">Hướng dẫn</Label>
                   <Input
-                    placeholder="e.g. take after meals"
+                    placeholder="VD: uống sau bữa ăn"
                     value={line.instructions}
                     onChange={(e) => updateLine(index, { instructions: e.target.value })}
                     maxLength={100}
@@ -309,14 +309,14 @@ export function PrescriptionForm({
             ])
           }
         >
-          <Plus className="h-4 w-4" /> Add medication
+          <Plus className="h-4 w-4" /> Thêm thuốc
         </Button>
       </div>
 
       {allergenWarnings.length > 0 && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Allergy warnings</AlertTitle>
+          <AlertTitle>Cảnh báo dị ứng</AlertTitle>
           <AlertDescription>
             <ul className="list-inside list-disc space-y-1">
               {allergenWarnings.map((w, i) => (
@@ -330,7 +330,7 @@ export function PrescriptionForm({
       {interactionWarnings.length > 0 && (
         <Alert>
           <AlertTriangle className="h-4 w-4 text-amber-500" />
-          <AlertTitle>Drug interaction warnings</AlertTitle>
+          <AlertTitle>Cảnh báo tương tác thuốc</AlertTitle>
           <AlertDescription>
             <ul className="list-inside list-disc space-y-1">
               {interactionWarnings.map((w, i) => (
@@ -344,7 +344,7 @@ export function PrescriptionForm({
       {stockWarnings.length > 0 && (
         <Alert variant="destructive">
           <X className="h-4 w-4" />
-          <AlertTitle>Stock warnings</AlertTitle>
+          <AlertTitle>Cảnh báo tồn kho</AlertTitle>
           <AlertDescription>
             <ul className="list-inside list-disc space-y-1">
               {stockWarnings.map((w, i) => (
@@ -357,12 +357,12 @@ export function PrescriptionForm({
 
       <div>
         <Label className="text-xs text-muted-foreground">
-          Prescription notes (optional)
+          Ghi chú đơn thuốc (tùy chọn)
         </Label>
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Additional instructions for the pharmacy..."
+          placeholder="Hướng dẫn thêm cho nhà thuốc..."
           rows={2}
           maxLength={300}
         />
@@ -373,7 +373,7 @@ export function PrescriptionForm({
         disabled={!isValid || mutation.isPending}
         onClick={() => mutation.mutate()}
       >
-        {mutation.isPending ? "Sending..." : "Send prescription to pharmacy"}
+        {mutation.isPending ? "Đang gửi..." : "Gửi đơn thuốc cho nhà thuốc"}
       </Button>
     </div>
   );

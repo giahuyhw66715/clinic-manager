@@ -29,7 +29,7 @@ export function NotificationBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between p-3">
-          <p className="text-sm font-semibold">Notifications</p>
+          <p className="text-sm font-semibold">Thông báo</p>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
@@ -37,7 +37,7 @@ export function NotificationBell() {
               className="h-7 text-xs"
               onClick={() => markAllRead.mutate()}
             >
-              Mark all as read
+              Đánh dấu đã đọc
             </Button>
           )}
         </div>
@@ -45,7 +45,7 @@ export function NotificationBell() {
         <ScrollArea className="h-80">
           {notifications.length === 0 ? (
             <div className="p-6 text-center text-sm text-muted-foreground">
-              No notifications yet
+              Chưa có thông báo nào
             </div>
           ) : (
             <div>

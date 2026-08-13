@@ -22,68 +22,68 @@ import { Card, CardContent } from "@/components/ui/card";
 const features = [
   {
     icon: CalendarCheck,
-    title: "Online booking",
+    title: "Đặt lịch trực tuyến",
     description:
-      "Patients pick a department, doctor and time slot with live availability — updates in real time.",
+      "Bệnh nhân chọn khoa khám, bác sĩ và giờ hẹn với lịch trống cập nhật theo thời gian thực.",
   },
   {
     icon: ClipboardList,
-    title: "SOAP records",
+    title: "Hồ sơ SOAP",
     description:
-      "Doctors write structured consultation records and keep a complete visit history per patient.",
+      "Bác sĩ ghi hồ sơ khám bệnh có cấu trúc và lưu giữ lịch sử khám đầy đủ của từng bệnh nhân.",
   },
   {
     icon: Pill,
-    title: "Connected pharmacy",
+    title: "Nhà thuốc kết nối",
     description:
-      "Prescriptions flow to the pharmacy instantly. Stock is checked and decremented automatically.",
+      "Đơn thuốc được chuyển đến nhà thuốc ngay lập tức. Tồn kho được kiểm tra và trừ tự động.",
   },
   {
     icon: BellRing,
-    title: "Smart notifications",
+    title: "Thông báo thông minh",
     description:
-      "Reminders and status updates keep patients, doctors and staff in sync around every visit.",
+      "Nhắc hẹn và cập nhật trạng thái giúp bệnh nhân, bác sĩ và nhân viên luôn đồng bộ trong suốt mỗi lần khám.",
   },
   {
     icon: Receipt,
-    title: "Invoicing",
+    title: "Hóa đơn",
     description:
-      "Consultation fees and medication totals are rolled into a single invoice at completion.",
+      "Phí khám và tiền thuốc được tổng hợp thành một hóa đơn duy nhất khi hoàn tất.",
   },
   {
     icon: ShieldCheck,
-    title: "Role-based access",
+    title: "Phân quyền theo vai trò",
     description:
-      "Dedicated experiences for patients, doctors, pharmacists and admins with secure permissions.",
+      "Trải nghiệm riêng cho bệnh nhân, bác sĩ, dược sĩ và quản trị viên với quyền truy cập an toàn.",
   },
 ];
 
 const roles = [
   {
     icon: HeartPulse,
-    title: "For Patients",
+    title: "Dành cho Bệnh nhân",
     points: [
-      "Book and reschedule in a few clicks",
-      "See your medical history in one place",
-      "Track prescriptions and invoices",
+      "Đặt và đổi lịch chỉ với vài cú nhấp chuột",
+      "Xem lịch sử khám bệnh của bạn tại một nơi",
+      "Theo dõi đơn thuốc và hóa đơn",
     ],
   },
   {
     icon: Stethoscope,
-    title: "For Doctors",
+    title: "Dành cho Bác sĩ",
     points: [
-      "Manage today's queue efficiently",
-      "Write SOAP notes on a guided flow",
-      "Prescribe only medication in stock",
+      "Quản lý danh sách khám trong ngày hiệu quả",
+      "Ghi hồ sơ SOAP theo quy trình có hướng dẫn",
+      "Chỉ kê thuốc còn hàng",
     ],
   },
   {
     icon: Pill,
-    title: "For Pharmacists",
+    title: "Dành cho Dược sĩ",
     points: [
-      "New prescriptions arrive in real time",
-      "Prepare, mark ready and dispense",
-      "Keep inventory under control",
+      "Đơn thuốc mới đến theo thời gian thực",
+      "Chuẩn bị, đánh dấu sẵn sàng và cấp phát thuốc",
+      "Kiểm soát tồn kho hiệu quả",
     ],
   },
 ];
@@ -91,18 +91,18 @@ const roles = [
 const steps = [
   {
     step: "01",
-    title: "Book",
-    description: "Patients choose a department, doctor and a free time slot in seconds.",
+    title: "Đặt lịch",
+    description: "Bệnh nhân chọn khoa khám, bác sĩ và giờ trống chỉ trong vài giây.",
   },
   {
     step: "02",
-    title: "Consult",
-    description: "Doctors check patients in, write records and send prescriptions to the pharmacy.",
+    title: "Khám",
+    description: "Bác sĩ tiếp nhận bệnh nhân, ghi hồ sơ và gửi đơn thuốc đến nhà thuốc.",
   },
   {
     step: "03",
-    title: "Treat",
-    description: "Pharmacists dispense the medication and the invoice is settled automatically.",
+    title: "Điều trị",
+    description: "Dược sĩ cấp phát thuốc và hóa đơn được thanh toán tự động.",
   },
 ];
 
@@ -116,17 +116,17 @@ export function LandingPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Stethoscope className="h-5 w-5" />
             </div>
-            <span className="text-lg font-bold tracking-tight">ClinicManager</span>
+            <span className="text-lg font-bold tracking-tight">Quản lý Phòng khám</span>
           </Link>
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild>
               <Link to="/login">
-                <LogIn className="h-4 w-4" /> Sign in
+                <LogIn className="h-4 w-4" /> Đăng nhập
               </Link>
             </Button>
             <Button asChild>
               <Link to="/register">
-                Get started <ArrowRight className="h-4 w-4" />
+                Bắt đầu <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
           </div>
@@ -143,40 +143,39 @@ export function LandingPage() {
           <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-6 px-6 py-20 text-center sm:py-28">
             <Badge variant="secondary" className="gap-1.5 px-3 py-1">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              Clinic management platform
+              Nền tảng quản lý phòng khám
             </Badge>
             <h1 className="max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl">
-              Run your clinic from{" "}
+              Vận hành phòng khám của bạn từ{" "}
               <span className="bg-gradient-to-r from-primary to-sky-500 bg-clip-text text-transparent">
-                one place
+                một nơi
               </span>
             </h1>
             <p className="max-w-2xl text-lg text-muted-foreground">
-              Patients book appointments and track prescriptions in real time. Doctors write
-              records and send prescriptions in seconds. Pharmacists prepare and dispense
-              medication efficiently.
+              Bệnh nhân đặt lịch khám và theo dõi đơn thuốc theo thời gian thực. Bác sĩ ghi hồ
+              sơ và gửi đơn thuốc trong vài giây. Dược sĩ chuẩn bị và cấp phát thuốc hiệu quả.
             </p>
             <div className="mt-2 flex flex-col items-center gap-3 sm:flex-row">
               <Button size="lg" asChild>
                 <Link to="/register">
-                  Get started for free <ArrowRight className="h-4 w-4" />
+                  Đăng ký miễn phí <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link to="/login">Sign in to your account</Link>
+                <Link to="/login">Đăng nhập tài khoản</Link>
               </Button>
             </div>
             <p className="text-sm text-muted-foreground">
-              Seamless for patients · doctors · pharmacists · admins
+              Mượt mà cho bệnh nhân · bác sĩ · dược sĩ · quản trị viên
             </p>
           </div>
 
           {/* Stats */}
           <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-4 px-6 pb-20 sm:grid-cols-3">
             {[
-              { value: "24/7", label: "Online booking" },
-              { value: "Real-time", label: "Pharmacy & notifications" },
-              { value: "4 roles", label: "Built-in access control" },
+              { value: "24/7", label: "Đặt lịch trực tuyến" },
+              { value: "Real-time", label: "Nhà thuốc & thông báo" },
+              { value: "4 roles", label: "Kiểm soát truy cập sẵn có" },
             ].map((stat) => (
               <Card key={stat.label}>
                 <CardContent className="flex items-center justify-between gap-4 p-5">
@@ -197,11 +196,11 @@ export function LandingPage() {
           <div className="mx-auto w-full max-w-6xl px-6">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight">
-                Everything your clinic needs
+                Mọi thứ phòng khám cần
               </h2>
               <p className="mt-3 text-muted-foreground">
-                A single system that connects every role and keeps patients informed at every
-                step of their visit.
+                Một hệ thống duy nhất kết nối mọi vai trò và luôn cập nhật thông tin cho bệnh
+                nhân ở từng bước khám bệnh.
               </p>
             </div>
             <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -228,9 +227,9 @@ export function LandingPage() {
         <section className="py-16 sm:py-20">
           <div className="mx-auto w-full max-w-6xl px-6">
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight">How it works</h2>
+              <h2 className="text-3xl font-bold tracking-tight">Cách hoạt động</h2>
               <p className="mt-3 text-muted-foreground">
-                From booking to dispense, the whole journey is handled in one system.
+                Từ đặt lịch đến cấp phát thuốc, toàn bộ quy trình được xử lý trong một hệ thống.
               </p>
             </div>
             <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -249,10 +248,10 @@ export function LandingPage() {
         <section className="border-y bg-muted/40 py-16 sm:py-20">
           <div className="mx-auto w-full max-w-6xl px-6">
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight">Built for every team member</h2>
+              <h2 className="text-3xl font-bold tracking-tight">Dành cho mọi thành viên</h2>
               <p className="mt-3 text-muted-foreground">
-                Tailored experiences for everyone in the clinic, from the front desk to the
-                pharmacy.
+                Trải nghiệm phù hợp cho mọi người trong phòng khám, từ quầy tiếp đón đến nhà
+                thuốc.
               </p>
             </div>
             <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -284,11 +283,11 @@ export function LandingPage() {
             <div className="rounded-2xl bg-primary px-6 py-12 text-center text-primary-foreground shadow-lg sm:px-12 sm:py-16">
               <Users className="mx-auto mb-4 h-10 w-10 opacity-80" />
               <h2 className="mx-auto max-w-xl text-3xl font-bold tracking-tight">
-                Ready to modernize your clinic?
+                Sẵn sàng hiện đại hóa phòng khám của bạn?
               </h2>
               <p className="mx-auto mt-3 max-w-xl text-primary-foreground/80">
-                Join ClinicManager and streamline booking, consultations and pharmacy operations
-                in one place.
+                Tham gia Quản lý Phòng khám và tinh gọn việc đặt lịch, khám bệnh và vận hành
+                nhà thuốc tại một nơi.
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Button
@@ -298,7 +297,7 @@ export function LandingPage() {
                   asChild
                 >
                   <Link to="/register">
-                    Create a free account <ArrowRight className="h-4 w-4" />
+                    Tạo tài khoản miễn phí <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button
@@ -307,7 +306,7 @@ export function LandingPage() {
                   className="w-full text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground sm:w-auto"
                   asChild
                 >
-                  <Link to="/login">Sign in</Link>
+                  <Link to="/login">Đăng nhập</Link>
                 </Button>
               </div>
             </div>
@@ -321,10 +320,10 @@ export function LandingPage() {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Stethoscope className="h-4 w-4" />
             </div>
-            <span className="font-semibold text-foreground">ClinicManager</span>
+            <span className="font-semibold text-foreground">Quản lý Phòng khám</span>
           </div>
           <p>
-            © {new Date().getFullYear()} ClinicManager · Powered by{" "}
+            © {new Date().getFullYear()} Quản lý Phòng khám · Được hỗ trợ bởi{" "}
             <span className="font-medium text-foreground">Supabase</span>
           </p>
         </div>

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
+import { vi } from "date-fns/locale";
 import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
 
@@ -85,7 +86,7 @@ export function DoctorQueuePage() {
       await updateAppointmentStatus(id, status);
     },
     onSuccess: () => {
-      toast.success("Appointment updated");
+      toast.success("Đã cập nhật lịch hẹn");
       queryClient.invalidateQueries({ queryKey: ["doctor-today-queue"] });
       queryClient.invalidateQueries({ queryKey: ["doctor-inactive"] });
       queryClient.invalidateQueries({ queryKey: ["doctor-completed"] });
@@ -96,15 +97,15 @@ export function DoctorQueuePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Appointments"
-        description={format(new Date(), "EEEE, MMMM d, yyyy")}
+        title="Lịch hẹn"
+        description={format(new Date(), "EEEE, d 'tháng' M, yyyy", { locale: vi })}
       />
 
       <Tabs defaultValue="queue">
         <TabsList>
-          <TabsTrigger value="queue">Today's Queue</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-          <TabsTrigger value="inactive">No-show &amp; Cancelled</TabsTrigger>
+          <TabsTrigger value="queue">Hàng đợi hôm nay</TabsTrigger>
+          <TabsTrigger value="completed">Hoàn tất</TabsTrigger>
+          <TabsTrigger value="inactive">Vắng mặt &amp; Đã hủy</TabsTrigger>
         </TabsList>
 
         <TabsContent value="queue">
@@ -112,8 +113,8 @@ export function DoctorQueuePage() {
             <CardGridSkeleton />
           ) : appointments.length === 0 ? (
             <EmptyState
-              title="No appointments today"
-              description="New appointments will appear here in real time."
+              title="Hôm nay không có lịch hẹn"
+              description="Lịch hẹn mới sẽ hiển thị tại đây theo thời gian thực."
             />
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -127,7 +128,7 @@ export function DoctorQueuePage() {
                         </span>
                         <div className="min-w-0">
                           <CardTitle className="truncate text-base">
-                            {appointment.patient?.full_name ?? "Patient"}
+                            {appointment.patient?.full_name ?? "Bệnh nhân"}
                           </CardTitle>
                           <CardDescription>{appointment.patient?.phone ?? "—"}</CardDescription>
                         </div>
@@ -138,7 +139,7 @@ export function DoctorQueuePage() {
                   <CardContent className="flex flex-1 flex-col gap-3 text-sm">
                     {appointment.patient?.allergies && (
                       <p className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                        Allergies: {appointment.patient.allergies}
+                        Dị ứng: {appointment.patient.allergies}
                       </p>
                     )}
                     {appointment.reason && (
@@ -155,7 +156,7 @@ export function DoctorQueuePage() {
                               statusMutation.mutate({ id: appointment.id, status: "in-progress" })
                             }
                           >
-                            Start visit
+                            Bắt đầu khám
                           </Button>
                         )}
                         {(appointment.status === "pending" ||
@@ -168,15 +169,15 @@ export function DoctorQueuePage() {
                             onClick={() =>
                               statusMutation.mutate({ id: appointment.id, status: "no-show" })
                             }
-                          >
-                            No-show
+                            >
+                            Vắng mặt
                           </Button>
                         )}
                       </div>
                       {appointment.status !== "no-show" && appointment.status !== "cancelled" && (
                         <Button size="sm" asChild>
                           <Link to={`/app/doctor/appointments/${appointment.id}`}>
-                            Open <ArrowRight className="h-4 w-4" />
+                            Mở <ArrowRight className="h-4 w-4" />
                           </Link>
                         </Button>
                       )}
@@ -201,8 +202,8 @@ export function DoctorQueuePage() {
             <CardGridSkeleton />
           ) : completedAppointments.length === 0 ? (
             <EmptyState
-              title="No completed visits"
-              description="Visits you have completed will appear here."
+              title="Chưa có buổi khám hoàn tất"
+              description="Các buổi khám đã hoàn tất sẽ hiển thị tại đây."
             />
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -216,12 +217,12 @@ export function DoctorQueuePage() {
                         </span>
                         <div className="min-w-0">
                           <CardTitle className="truncate text-base">
-                            {appointment.patient?.full_name ?? "Patient"}
+                            {appointment.patient?.full_name ?? "Bệnh nhân"}
                           </CardTitle>
                           <CardDescription>
                             {format(
                               parseISO(appointment.appointment_date + "T00:00:00"),
-                              "MMM d, yyyy",
+                              "dd/MM/yyyy",
                             )}
                             {" · "}
                             {appointment.patient?.phone ?? "—"}
@@ -235,7 +236,7 @@ export function DoctorQueuePage() {
                     <div className="mt-auto flex items-center justify-end pt-2">
                       <Button size="sm" asChild>
                         <Link to={`/app/doctor/appointments/${appointment.id}`}>
-                          View record <ArrowRight className="h-4 w-4" />
+                          Xem hồ sơ <ArrowRight className="h-4 w-4" />
                         </Link>
                       </Button>
                     </div>
@@ -259,8 +260,8 @@ export function DoctorQueuePage() {
             <CardGridSkeleton />
           ) : inactiveAppointments.length === 0 ? (
             <EmptyState
-              title="No no-show or cancelled visits"
-              description="No-show and cancelled appointments from the last 30 days will appear here."
+              title="Không có buổi khám vắng mặt hay đã hủy"
+              description="Các lịch hẹn vắng mặt hoặc đã hủy trong 30 ngày qua sẽ hiển thị tại đây."
             />
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -274,12 +275,12 @@ export function DoctorQueuePage() {
                         </span>
                         <div className="min-w-0">
                           <CardTitle className="truncate text-base">
-                            {appointment.patient?.full_name ?? "Patient"}
+                            {appointment.patient?.full_name ?? "Bệnh nhân"}
                           </CardTitle>
                           <CardDescription>
                             {format(
                               parseISO(appointment.appointment_date + "T00:00:00"),
-                              "MMM d, yyyy",
+                              "dd/MM/yyyy",
                             )}
                             {" · "}
                             {appointment.patient?.phone ?? "—"}

@@ -567,24 +567,24 @@ update public.profiles set role = 'patient',    phone = '+1 555 010 3002' where 
 -- Departments
 -- ----------------------------------------------------------------------------
 insert into public.departments (name, description) values
-  ('General Medicine', 'Primary care and general consultations'),
-  ('Cardiology', 'Heart and cardiovascular care'),
-  ('Pediatrics', 'Child health and development'),
-  ('Dermatology', 'Skin, hair and nails');
+  ('Khoa Nội tổng hợp', 'Khám và chăm sóc sức khỏe tổng quát'),
+  ('Khoa Tim mạch', 'Khám và điều trị các bệnh tim mạch'),
+  ('Khoa Nhi', 'Chăm sóc sức khỏe và phát triển của trẻ em'),
+  ('Khoa Da liễu', 'Chăm sóc da, tóc và móng');
 
 -- ----------------------------------------------------------------------------
 -- Doctors
 -- ----------------------------------------------------------------------------
 insert into public.doctors (id, user_id, department_id, specialty, consultation_fee, bio) values
   ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '22222222-2222-4222-8222-222222222222',
-   (select id from public.departments where name = 'General Medicine'),
-   'General Practitioner', 50, 'Family medicine, internal medicine.'),
+   (select id from public.departments where name = 'Khoa Nội tổng hợp'),
+   'Bác sĩ đa khoa', 1250000, 'Y học gia đình, nội khoa tổng quát.'),
   ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '33333333-3333-4333-8333-333333333333',
-   (select id from public.departments where name = 'Cardiology'),
-   'Cardiologist', 90, 'Heart disease, hypertension, ECG interpretation.'),
+   (select id from public.departments where name = 'Khoa Tim mạch'),
+   'Bác sĩ tim mạch', 2250000, 'Bệnh tim, tăng huyết áp, đọc điện tim.'),
   ('cccccccc-cccc-4ccc-8ccc-cccccccccccc', '44444444-4444-4444-8444-444444444444',
-   (select id from public.departments where name = 'Pediatrics'),
-   'Pediatrician', 75, 'Child care from newborns to adolescents.');
+   (select id from public.departments where name = 'Khoa Nhi'),
+   'Bác sĩ nhi khoa', 1875000, 'Chăm sóc trẻ từ sơ sinh đến tuổi vị thành niên.');
 
 -- ----------------------------------------------------------------------------
 -- Doctor schedules (Mon-Fri 08:00-17:00, Sat 08:00-12:00, 30 min slots)
@@ -606,18 +606,18 @@ cross join public.doctors d;
 -- Medications
 -- ----------------------------------------------------------------------------
 insert into public.medications (name, description, dosage_unit, price, stock_qty, reorder_level) values
-  ('Paracetamol 500mg', 'Pain relief and fever reduction', 'tablet', 2.50, 500, 50),
-  ('Ibuprofen 400mg', 'Anti-inflammatory pain relief', 'tablet', 3.00, 300, 40),
-  ('Amoxicillin 500mg', 'Antibiotic (penicillin family)', 'capsule', 4.00, 200, 30),
-  ('Azithromycin 250mg', 'Macrolide antibiotic', 'tablet', 6.50, 120, 20),
-  ('Loratadine 10mg', 'Antihistamine for allergies', 'tablet', 1.80, 250, 30),
-  ('Metformin 500mg', 'Type 2 diabetes medication', 'tablet', 2.00, 180, 25),
-  ('Amlodipine 5mg', 'Blood pressure medication', 'tablet', 2.50, 150, 20),
-  ('Salbutamol Inhaler', 'Asthma reliever inhaler', 'inhaler', 8.00, 60, 10),
-  ('Omeprazole 20mg', 'Acid reflux medication', 'capsule', 3.50, 200, 25),
-  ('Aspirin 81mg', 'Blood thinner / pain relief', 'tablet', 1.50, 400, 50),
-  ('Warfarin 5mg', 'Anticoagulant', 'tablet', 2.00, 100, 15),
-  ('Cetirizine 10mg', 'Antihistamine', 'tablet', 1.90, 220, 30);
+  ('Paracetamol 500mg', 'Giảm đau và hạ sốt', 'viên', 62500, 500, 50),
+  ('Ibuprofen 400mg', 'Giảm đau chống viêm', 'viên', 75000, 300, 40),
+  ('Amoxicillin 500mg', 'Kháng sinh (nhóm penicillin)', 'viên nang', 100000, 200, 30),
+  ('Azithromycin 250mg', 'Kháng sinh macrolid', 'viên', 162500, 120, 20),
+  ('Loratadine 10mg', 'Thuốc kháng histamin trị dị ứng', 'viên', 45000, 250, 30),
+  ('Metformin 500mg', 'Thuốc điều trị tiểu đường type 2', 'viên', 50000, 180, 25),
+  ('Amlodipine 5mg', 'Thuốc huyết áp', 'viên', 62500, 150, 20),
+  ('Salbutamol Inhaler', 'Thuốc xịt hen suyễn', 'ống hít', 200000, 60, 10),
+  ('Omeprazole 20mg', 'Thuốc trị trào ngược dạ dày', 'viên nang', 87500, 200, 25),
+  ('Aspirin 81mg', 'Chống đông / giảm đau', 'viên', 37500, 400, 50),
+  ('Warfarin 5mg', 'Thuốc chống đông máu', 'viên', 50000, 100, 15),
+  ('Cetirizine 10mg', 'Thuốc kháng histamin', 'viên', 47500, 220, 30);
 
 -- ----------------------------------------------------------------------------
 -- Drug interactions

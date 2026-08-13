@@ -33,7 +33,7 @@ import { AppointmentStatusBadge } from "@/components/shared/StatusBadge";
 import { getMyAppointments, updateAppointmentSchedule, updateAppointmentStatus, getDoctorSchedules, getDoctorOffDays, getBookedSlots } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { generateSlotsForDate } from "@/lib/availability";
-import { cn, formatTime, toDateKey } from "@/lib/utils";
+import { cn, formatDate, formatTime, toDateKey } from "@/lib/utils";
 
 export const CANCEL_WINDOW_HOURS = 6;
 
@@ -77,7 +77,7 @@ export function MyAppointmentsPage() {
       await updateAppointmentStatus(id, "cancelled");
     },
     onSuccess: () => {
-      toast.success("Appointment cancelled");
+      toast.success("Đã hủy lịch hẹn");
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -89,7 +89,7 @@ export function MyAppointmentsPage() {
       await updateAppointmentSchedule(rescheduling.id, toDateKey(date!), timeSlot);
     },
     onSuccess: async () => {
-      toast.success("Appointment rescheduled");
+      toast.success("Đã đổi lịch hẹn");
       setRescheduling(null);
       setDate(undefined);
       setTimeSlot("");
@@ -121,12 +121,12 @@ export function MyAppointmentsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="My Appointments"
-        description="Book, cancel, or reschedule your visits"
+        title="Lịch hẹn của tôi"
+        description="Đặt lịch, hủy hoặc đổi lịch khám"
       >
         <Button asChild>
           <a href="/app/book">
-            <CalendarPlus className="h-4 w-4" /> New appointment
+            <CalendarPlus className="h-4 w-4" /> Đặt lịch mới
           </a>
         </Button>
       </PageHeader>
@@ -135,12 +135,12 @@ export function MyAppointmentsPage() {
         <CardGridSkeleton className="md:grid-cols-1" />
       ) : appointments.length === 0 ? (
         <EmptyState
-          title="No appointments yet"
-          description="Book your first appointment with one of our doctors."
+          title="Chưa có lịch hẹn nào"
+          description="Đặt lịch khám đầu tiên với bác sĩ của phòng khám."
           action={
             <Button asChild>
               <a href="/app/book">
-                <Plus className="h-4 w-4" /> Book now
+                <Plus className="h-4 w-4" /> Đặt ngay
               </a>
             </Button>
           }
@@ -153,7 +153,7 @@ export function MyAppointmentsPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <CardTitle className="text-base">
-                      {appointment.doctor?.profile?.full_name ?? "Doctor"}
+                      {appointment.doctor?.profile?.full_name ?? "Bác sĩ"}
                     </CardTitle>
                     <CardDescription>
                       {appointment.doctor?.specialty ?? ""}
@@ -165,7 +165,7 @@ export function MyAppointmentsPage() {
               <CardContent className="space-y-3 text-sm">
                 <div className="flex items-center gap-2">
                   <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                  {format(parseISO(appointment.appointment_date + "T00:00:00"), "MMM d, yyyy")} at{" "}
+                  {format(parseISO(appointment.appointment_date + "T00:00:00"), "dd/MM/yyyy")} lúc{" "}
                   {formatTime(appointment.time_slot)}
                 </div>
                 {appointment.reason && (
@@ -182,7 +182,7 @@ export function MyAppointmentsPage() {
                           setRescheduling({ id: appointment.id, doctor_id: appointment.doctor_id })
                         }
                       >
-                        Reschedule
+                        Đổi lịch
                       </Button>
                       <ConfirmDialog
                         trigger={
@@ -192,12 +192,12 @@ export function MyAppointmentsPage() {
                             className="text-destructive"
 disabled={!canCancel(appointment.appointment_date, appointment.time_slot, appointment.status)}
                           >
-                            Cancel
+                            Hủy
                           </Button>
                         }
-                        title="Cancel appointment?"
-                        description={`Cancel the appointment on ${appointment.appointment_date}. You can cancel up to ${CANCEL_WINDOW_HOURS} hours before.`}
-                        confirmLabel="Yes, cancel it"
+                        title="Hủy lịch hẹn?"
+                        description={`Hủy lịch hẹn vào ngày ${appointment.appointment_date}. Bạn có thể hủy trong vòng ${CANCEL_WINDOW_HOURS} giờ trước giờ hẹn.`}
+                        confirmLabel="Có, hủy lịch"
                         onConfirm={() => cancelMutation.mutate(appointment.id)}
                       />
                     </>
@@ -221,19 +221,19 @@ disabled={!canCancel(appointment.appointment_date, appointment.time_slot, appoin
       <Dialog open={!!rescheduling} onOpenChange={(open) => !open && setRescheduling(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reschedule appointment</DialogTitle>
+            <DialogTitle>Đổi lịch hẹn</DialogTitle>
             <DialogDescription>
-              Pick a new date and time. The appointment will be re-sent for confirmation.
+              Chọn ngày và giờ mới. Lịch hẹn sẽ được gửi lại để xác nhận.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="mb-2 block">New date *</Label>
+              <Label className="mb-2 block">Ngày mới *</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start text-left font-normal">
                     <CalendarDays className="mr-2 h-4 w-4" />
-                    {date ? date.toDateString() : "Pick a date"}
+                    {date ? formatDate(date) : "Chọn ngày"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -249,11 +249,11 @@ disabled={!canCancel(appointment.appointment_date, appointment.time_slot, appoin
               </Popover>
             </div>
             <div>
-              <Label className="mb-2 block">New time *</Label>
+              <Label className="mb-2 block">Giờ mới *</Label>
               {date ? (
                 freeSlots.length === 0 ? (
                   <div className="flex h-9 items-center rounded-md border border-dashed text-xs text-muted-foreground">
-                    No free slots
+                    Không còn suất trống
                   </div>
                 ) : (
                   <ScrollArea className="h-48 rounded-md border pr-2">
@@ -280,7 +280,7 @@ disabled={!canCancel(appointment.appointment_date, appointment.time_slot, appoin
                 )
               ) : (
                 <div className="flex h-9 items-center rounded-md border border-dashed text-xs text-muted-foreground">
-                  Pick a date first
+                  Vui lòng chọn ngày trước
                 </div>
               )}
             </div>
@@ -290,7 +290,7 @@ disabled={!canCancel(appointment.appointment_date, appointment.time_slot, appoin
               onClick={() => rescheduleMutation.mutate()}
               disabled={!date || !timeSlot || rescheduleMutation.isPending}
             >
-              {rescheduleMutation.isPending ? "Saving..." : "Confirm"}
+              {rescheduleMutation.isPending ? "Đang lưu..." : "Xác nhận"}
             </Button>
           </DialogFooter>
         </DialogContent>

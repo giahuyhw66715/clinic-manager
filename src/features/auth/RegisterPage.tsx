@@ -26,15 +26,15 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 
 const registerSchema = z.object({
-  fullName: z.string().min(2, "Enter your full name").max(100, "Full name must be under 100 characters"),
-  email: z.string().email("Enter a valid email").max(100, "Email must be under 100 characters"),
-  phone: z.string().max(100, "Phone number must be under 100 characters").optional().refine((val) => !val || /^[\d+\-\s\(\)]+$/.test(val), {
-    message: "Phone number must contain only digits, dashes, spaces, or parentheses",
+  fullName: z.string().min(2, "Vui lòng nhập họ và tên").max(100, "Họ và tên không được quá 100 ký tự"),
+  email: z.string().email("Vui lòng nhập email hợp lệ").max(100, "Email không được quá 100 ký tự"),
+  phone: z.string().max(100, "Số điện thoại không được quá 100 ký tự").optional().refine((val) => !val || /^[\d+\-\s\(\)]+$/.test(val), {
+    message: "Số điện thoại chỉ được chứa chữ số, gạch ngang, khoảng trắng hoặc dấu ngoặc",
   }),
-  password: z.string().min(6, "Password must be at least 6 characters").max(100, "Password must be under 100 characters"),
-  confirmPassword: z.string().min(6, "Password must be at least 6 characters").max(100, "Password must be under 100 characters"),
+  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").max(100, "Mật khẩu không được quá 100 ký tự"),
+  confirmPassword: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").max(100, "Mật khẩu không được quá 100 ký tự"),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
+  message: "Mật khẩu xác nhận không khớp",
   path: ["confirmPassword"],
 });
 
@@ -55,7 +55,7 @@ export function RegisterPage() {
       toast.error(error);
       return;
     }
-    toast.success("Account created. You can now sign in.");
+    toast.success("Đã tạo tài khoản. Bạn có thể đăng nhập ngay bây giờ.");
     navigate("/login");
   }
 
@@ -65,12 +65,12 @@ export function RegisterPage() {
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
           <Stethoscope className="h-5 w-5" />
         </div>
-        <span className="text-xl font-bold">ClinicManager</span>
+        <span className="text-xl font-bold">Quản lý Phòng khám</span>
       </div>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Create an account</CardTitle>
-          <CardDescription>Register as a patient to book appointments</CardDescription>
+          <CardTitle>Tạo tài khoản</CardTitle>
+          <CardDescription>Đăng ký với tư cách bệnh nhân để đặt lịch khám</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -80,9 +80,9 @@ export function RegisterPage() {
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full name *</FormLabel>
+                    <FormLabel>Họ và tên *</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" maxLength={100} {...field} />
+                      <Input placeholder="Nguyễn Văn A" maxLength={100} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -106,9 +106,9 @@ export function RegisterPage() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone (optional)</FormLabel>
+                    <FormLabel>Số điện thoại (tùy chọn)</FormLabel>
                     <FormControl>
-                      <Input placeholder="+1 555 000 0000" maxLength={100} {...field} />
+                      <Input placeholder="0912 345 678" maxLength={100} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -120,7 +120,7 @@ export function RegisterPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password *</FormLabel>
+                      <FormLabel>Mật khẩu *</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="••••••••" maxLength={100} {...field} />
                       </FormControl>
@@ -133,7 +133,7 @@ export function RegisterPage() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm password *</FormLabel>
+                      <FormLabel>Xác nhận mật khẩu *</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="••••••••" maxLength={100} {...field} />
                       </FormControl>
@@ -143,16 +143,16 @@ export function RegisterPage() {
                 />
               </div>
               <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Creating..." : "Create account"}
+                {form.formState.isSubmitting ? "Đang tạo..." : "Tạo tài khoản"}
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="justify-center">
           <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
+            Đã có tài khoản?{" "}
             <Link to="/login" className="font-medium text-primary underline-offset-4 hover:underline">
-              Sign in
+              Đăng nhập
             </Link>
           </p>
         </CardFooter>

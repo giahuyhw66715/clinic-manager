@@ -46,17 +46,17 @@ import { cn, formatCurrency, formatDateTime, formatTime } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
 const soapSchema = z.object({
-  symptoms: z.string().max(300, "Symptoms must be under 300 characters").optional(),
-  diagnosis: z.string().min(1, "Diagnosis is required").max(100, "Diagnosis must be under 100 characters"),
-  treatment_plan: z.string().max(300, "Treatment plan must be under 300 characters").optional(),
-  notes: z.string().max(300, "Notes must be under 300 characters").optional(),
+  symptoms: z.string().max(300, "Triệu chứng không được quá 300 ký tự").optional(),
+  diagnosis: z.string().min(1, "Vui lòng nhập chẩn đoán").max(100, "Chẩn đoán không được quá 100 ký tự"),
+  treatment_plan: z.string().max(300, "Kế hoạch điều trị không được quá 300 ký tự").optional(),
+  notes: z.string().max(300, "Ghi chú không được quá 300 ký tự").optional(),
 });
 
 type SoapValues = z.infer<typeof soapSchema>;
 
 const steps = [
-  { label: "Consultation record", value: "soap" },
-  { label: "Prescription & complete", value: "prescription" },
+  { label: "Hồ sơ khám", value: "soap" },
+  { label: "Kê đơn & hoàn tất", value: "prescription" },
 ] as const;
 
 type Step = (typeof steps)[number]["value"];
@@ -121,7 +121,7 @@ export function PatientRecordPage() {
       queryClient.invalidateQueries({ queryKey: ["patient-records"] });
     },
     onError: () => {
-      throw new Error("Failed to save consultation record");
+      throw new Error("Không thể lưu hồ sơ khám");
     },
   });
 
@@ -132,7 +132,7 @@ export function PatientRecordPage() {
       await saveSoapMutation.mutateAsync(values);
       const rx = await getAppointmentPrescriptions(appointment.id);
       if (rx.length === 0) {
-        throw new Error("Send a prescription to the pharmacist before completing the visit.");
+        throw new Error("Vui lòng gửi đơn thuốc cho dược sĩ trước khi hoàn tất buổi khám.");
       }
       const medTotal = rx.reduce(
         (sum, p) => sum + p.items.reduce((s, i) => s + (i.medication?.price ?? 0) * i.quantity, 0),
@@ -147,12 +147,12 @@ export function PatientRecordPage() {
       await updateAppointmentStatus(appointment.id, "completed");
       await createNotification(appointment.patient_id, {
         type: "record",
-        title: "Visit completed",
-        body: `Your visit record was saved. Invoice total: ${formatCurrency(total)}.`,
+        title: "Hoàn tất buổi khám",
+        body: `Hồ sơ buổi khám đã được lưu. Tổng hóa đơn: ${formatCurrency(total)}.`,
       });
     },
     onSuccess: () => {
-      toast.success("Visit completed and invoice created");
+      toast.success("Đã hoàn tất buổi khám và tạo hóa đơn");
       queryClient.invalidateQueries({ queryKey: ["appointment"] });
       queryClient.invalidateQueries({ queryKey: ["patient-records"] });
       queryClient.invalidateQueries({ queryKey: ["my-invoices"] });
@@ -167,16 +167,16 @@ export function PatientRecordPage() {
     mutationFn: async () => {
       if (!appointment) throw new Error("Missing context");
       const reason = cancelReason.trim();
-      if (!reason) throw new Error("Please provide a cancellation reason");
+      if (!reason) throw new Error("Vui lòng nhập lý do hủy");
       await updateAppointmentStatus(appointment.id, "cancelled", reason);
       await createNotification(appointment.patient_id, {
         type: "appointment",
-        title: "Appointment cancelled",
-        body: `Your visit on ${appointment.appointment_date} was cancelled by the doctor. Reason: ${reason}`,
+        title: "Đã hủy lịch hẹn",
+        body: `Buổi khám ngày ${appointment.appointment_date} đã bị bác sĩ hủy. Lý do: ${reason}`,
       });
     },
     onSuccess: () => {
-      toast.success("Visit cancelled");
+      toast.success("Đã hủy buổi khám");
       queryClient.invalidateQueries({ queryKey: ["appointment"] });
       queryClient.invalidateQueries({ queryKey: ["doctor-today-queue"] });
       queryClient.invalidateQueries({ queryKey: ["my-appointments"] });
@@ -190,7 +190,7 @@ export function PatientRecordPage() {
   }
 
   if (!appointment) {
-    return <p className="text-muted-foreground">Loading...</p>;
+    return <p className="text-muted-foreground">Đang tải...</p>;
   }
 
   const patient = appointment.patient;
@@ -205,13 +205,13 @@ export function PatientRecordPage() {
     <div className="space-y-6">
       <Button variant="ghost" size="sm" asChild className="-ml-2">
         <Link to="/app/doctor/queue">
-          <ArrowLeft className="h-4 w-4" /> Back to queue
+          <ArrowLeft className="h-4 w-4" /> Quay lại hàng đợi
         </Link>
       </Button>
 
       <PageHeader
-        title={patient?.full_name ?? "Patient"}
-        description={`${appointment.appointment_date} at ${formatTime(appointment.time_slot)}`}
+        title={patient?.full_name ?? "Bệnh nhân"}
+        description={`${appointment.appointment_date} lúc ${formatTime(appointment.time_slot)}`}
       >
         <AppointmentStatusBadge status={appointment.status} />
       </PageHeader>
@@ -219,7 +219,7 @@ export function PatientRecordPage() {
       {patient?.allergies && (
         <Alert variant="destructive">
           <Stethoscope className="h-4 w-4" />
-          <AlertTitle>Known allergies</AlertTitle>
+          <AlertTitle>Dị ứng đã biết</AlertTitle>
           <AlertDescription>{patient.allergies}</AlertDescription>
         </Alert>
       )}
@@ -233,7 +233,7 @@ export function PatientRecordPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Patient info</CardTitle>
+              <CardTitle className="text-base">Thông tin bệnh nhân</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <p className="font-medium">{patient?.full_name ?? "—"}</p>
@@ -243,7 +243,7 @@ export function PatientRecordPage() {
               <p className="text-muted-foreground">{patient?.email ?? "—"}</p>
               <Separator />
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Reason</span>
+                <span className="text-muted-foreground">Lý do</span>
                 <span>{appointment.reason ?? "—"}</span>
               </div>
             </CardContent>
@@ -251,12 +251,12 @@ export function PatientRecordPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Prescriptions for this visit</CardTitle>
+              <CardTitle className="text-base">Đơn thuốc của buổi khám này</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               {prescriptions.length === 0 ? (
                 <p className="text-muted-foreground">
-                  No prescription sent yet. Use the prescription step below.
+                  Chưa có đơn thuốc nào. Vui lòng dùng bước kê đơn bên dưới.
                 </p>
               ) : (
                 prescriptions.map((p) => (
@@ -281,10 +281,10 @@ export function PatientRecordPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Visit completed
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Hoàn tất buổi khám
                 </CardTitle>
                 <CardDescription>
-                  This visit has been completed and the invoice created.
+                  Buổi khám đã hoàn tất và hóa đơn đã được tạo.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -292,35 +292,35 @@ export function PatientRecordPage() {
                   <dl className="space-y-2 text-sm">
                     {currentRecord.symptoms && (
                       <div>
-                        <dt className="text-xs text-muted-foreground">Symptoms</dt>
+                        <dt className="text-xs text-muted-foreground">Triệu chứng</dt>
                         <dd>{currentRecord.symptoms}</dd>
                       </div>
                     )}
                     {currentRecord.diagnosis && (
                       <div>
-                        <dt className="text-xs text-muted-foreground">Diagnosis</dt>
+                              <dt className="text-xs text-muted-foreground">Chẩn đoán</dt>
                         <dd>{currentRecord.diagnosis}</dd>
                       </div>
                     )}
                     {currentRecord.treatment_plan && (
                       <div>
-                        <dt className="text-xs text-muted-foreground">Treatment plan</dt>
+                        <dt className="text-xs text-muted-foreground">Kế hoạch điều trị</dt>
                         <dd>{currentRecord.treatment_plan}</dd>
                       </div>
                     )}
                     {currentRecord.notes && (
                       <div>
-                        <dt className="text-xs text-muted-foreground">Notes</dt>
+                        <dt className="text-xs text-muted-foreground">Ghi chú</dt>
                         <dd>{currentRecord.notes}</dd>
                       </div>
                     )}
                   </dl>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No consultation record found.</p>
+                  <p className="text-sm text-muted-foreground">Không tìm thấy hồ sơ khám.</p>
                 )}
                 {hasPrescription && (
                   <div>
-                    <h3 className="mb-2 text-sm font-medium">Prescriptions</h3>
+                    <h3 className="mb-2 text-sm font-medium">Đơn thuốc</h3>
                     <div className="space-y-2">
                       {prescriptions.map((p) => (
                         <div key={p.id} className="rounded-md border p-2 text-sm">
@@ -367,10 +367,10 @@ export function PatientRecordPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-base">
-                      <ClipboardList className="h-4 w-4" /> SOAP note
+                      <ClipboardList className="h-4 w-4" /> Ghi chú SOAP
                     </CardTitle>
                     <CardDescription>
-                      Fill in the consultation details, then continue to prescribe medication.
+                      Điền thông tin khám, sau đó tiếp tục kê đơn thuốc.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -381,9 +381,9 @@ export function PatientRecordPage() {
                           name="symptoms"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Symptoms (S)</FormLabel>
+                              <FormLabel>Triệu chứng (S)</FormLabel>
                               <FormControl>
-                                <Textarea rows={2} maxLength={300} placeholder="Subjective symptoms reported by patient" {...field} />
+                                <Textarea rows={2} maxLength={300} placeholder="Triệu chứng chủ quan do bệnh nhân mô tả" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -394,9 +394,9 @@ export function PatientRecordPage() {
                           name="diagnosis"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Diagnosis (A) *</FormLabel>
+                              <FormLabel>Chẩn đoán (A) *</FormLabel>
                               <FormControl>
-                                <Input maxLength={100} placeholder="e.g. Acute bronchitis" {...field} />
+                                <Input maxLength={100} placeholder="VD: Viêm phế quản cấp" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -407,9 +407,9 @@ export function PatientRecordPage() {
                           name="treatment_plan"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Treatment plan (P)</FormLabel>
+                              <FormLabel>Kế hoạch điều trị (P)</FormLabel>
                               <FormControl>
-                                <Textarea rows={2} maxLength={300} placeholder="Plan, follow-up, lifestyle advice..." {...field} />
+                                <Textarea rows={2} maxLength={300} placeholder="Kế hoạch, tái khám, lời khuyên..." {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -420,9 +420,9 @@ export function PatientRecordPage() {
                           name="notes"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Notes</FormLabel>
+                              <FormLabel>Ghi chú</FormLabel>
                               <FormControl>
-                                <Textarea rows={2} maxLength={300} placeholder="Any additional clinical notes" {...field} />
+                                <Textarea rows={2} maxLength={300} placeholder="Ghi chú lâm sàng bổ sung" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -437,19 +437,19 @@ export function PatientRecordPage() {
                                 className="text-destructive"
                                 disabled={!canCancel}
                               >
-                                <XCircle className="h-4 w-4" /> Cancel visit
+                                <XCircle className="h-4 w-4" /> Hủy buổi khám
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Cancel this visit?</AlertDialogTitle>
+                                <AlertDialogTitle>Hủy buổi khám này?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This will cancel the appointment with {patient?.full_name ?? "the patient"}
-                                  . A cancellation reason is required.
+                                  Thao tác này sẽ hủy lịch hẹn với {patient?.full_name ?? "bệnh nhân"}
+                                  . Vui lòng nhập lý do hủy.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <Textarea
-                                placeholder="Reason for cancellation (required)"
+                                placeholder="Lý do hủy (bắt buộc)"
                                 value={cancelReason}
                                 onChange={(e) => setCancelReason(e.target.value)}
                                 rows={3}
@@ -457,14 +457,14 @@ export function PatientRecordPage() {
                               />
                               <AlertDialogFooter>
                                 <AlertDialogCancel disabled={cancelMutation.isPending}>
-                                  Keep visit
+                                  Giữ buổi khám
                                 </AlertDialogCancel>
                                 <AlertDialogAction
                                   disabled={!cancelReason.trim() || cancelMutation.isPending}
                                   onClick={() => cancelMutation.mutate()}
                                   className="bg-destructive text-white hover:bg-destructive/90"
                                 >
-                                  {cancelMutation.isPending ? "Cancelling..." : "Cancel visit"}
+                                  {cancelMutation.isPending ? "Đang hủy..." : "Hủy buổi khám"}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -474,7 +474,7 @@ export function PatientRecordPage() {
                             disabled={!diagnosis?.trim()}
                             onClick={() => setStep("prescription")}
                           >
-                            Continue to prescription <ArrowRight className="h-4 w-4" />
+                            Tiếp tục kê đơn <ArrowRight className="h-4 w-4" />
                           </Button>
                         </div>
                       </form>
@@ -487,11 +487,10 @@ export function PatientRecordPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-base">
-                      <Stethoscope className="h-4 w-4" /> Prescription
+                      <Stethoscope className="h-4 w-4" /> Đơn thuốc
                     </CardTitle>
                     <CardDescription>
-                      Send the prescription to the pharmacist. The visit will be marked completed
-                      automatically once sent.
+                      Gửi đơn thuốc cho dược sĩ. Buổi khám sẽ tự động được đánh dấu hoàn tất sau khi gửi.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -501,7 +500,7 @@ export function PatientRecordPage() {
                       type="button"
                       onClick={() => setStep("soap")}
                     >
-                      <ArrowLeft className="h-4 w-4" /> Back to record
+                      <ArrowLeft className="h-4 w-4" /> Quay lại hồ sơ
                     </Button>
                     {doctor ? (
                       <PrescriptionForm
@@ -516,7 +515,7 @@ export function PatientRecordPage() {
                         }}
                       />
                     ) : (
-                      <p className="text-muted-foreground">Doctor profile not found.</p>
+                      <p className="text-muted-foreground">Không tìm thấy hồ sơ bác sĩ.</p>
                     )}
                   </CardContent>
                 </Card>
@@ -527,7 +526,7 @@ export function PatientRecordPage() {
           {records.filter((r) => r.appointment_id !== appointment.id).length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Visit history</CardTitle>
+                <CardTitle className="text-base">Lịch sử khám</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -537,7 +536,7 @@ export function PatientRecordPage() {
                       <div key={record.id} className="rounded-lg border p-4">
                         <div className="mb-2 flex items-center justify-between">
                           <Badge variant="secondary">
-                            {record.doctor?.profile?.full_name ?? "Doctor"}
+                            {record.doctor?.profile?.full_name ?? "Bác sĩ"}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
                             {formatDateTime(record.created_at)}
@@ -546,13 +545,13 @@ export function PatientRecordPage() {
                         <dl className="space-y-1 text-sm">
                           {record.diagnosis && (
                             <div>
-                              <dt className="text-xs text-muted-foreground">Diagnosis</dt>
+                        <dt className="text-xs text-muted-foreground">Chẩn đoán</dt>
                               <dd>{record.diagnosis}</dd>
                             </div>
                           )}
                           {record.treatment_plan && (
                             <div>
-                              <dt className="text-xs text-muted-foreground">Plan</dt>
+                              <dt className="text-xs text-muted-foreground">Kế hoạch</dt>
                               <dd>{record.treatment_plan}</dd>
                             </div>
                           )}
@@ -573,11 +572,11 @@ function AlertTriangleNote({ allergies }: { allergies: { medication?: { name: st
   return (
     <>
       <Stethoscope className="h-4 w-4" />
-      <AlertTitle>Registered medication allergies</AlertTitle>
+      <AlertTitle>Dị ứng thuốc đã ghi nhận</AlertTitle>
       <AlertDescription>
         {allergies.map((a, i) => (
           <span key={i}>
-            {a.medication?.name ?? a.allergen ?? "Unknown"} ({a.severity})
+            {a.medication?.name ?? a.allergen ?? "Không rõ"} ({a.severity})
             {i < allergies.length - 1 ? ", " : ""}
           </span>
         ))}

@@ -43,7 +43,7 @@ export function CheckInPage() {
       await updateAppointmentStatus(id, "checked-in");
     },
     onSuccess: () => {
-      toast.success("Patient checked in");
+      toast.success("Bệnh nhân đã check-in");
       queryClient.invalidateQueries({ queryKey: ["today-checkin"] });
     },
     onError: (e) => toast.error(e.message),
@@ -55,8 +55,8 @@ export function CheckInPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Patient Check-in"
-        description="Confirm arrival for today's appointments"
+        title="Check-in bệnh nhân"
+        description="Xác nhận bệnh nhân đến khám trong ngày"
       />
 
       {isLoading ? (
@@ -65,10 +65,10 @@ export function CheckInPage() {
         <>
           <div>
             <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
-              Awaiting check-in <Badge variant="secondary">{pending.length}</Badge>
+              Chờ check-in <Badge variant="secondary">{pending.length}</Badge>
             </h2>
             {pending.length === 0 ? (
-              <EmptyState title="Nothing to check in" description="No pending appointments today." />
+              <EmptyState title="Không có bệnh nhân chờ check-in" description="Hôm nay không có lịch hẹn đang chờ." />
             ) : (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {pending.map((appointment) => (
@@ -77,7 +77,7 @@ export function CheckInPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <CardTitle className="text-base">
-                            {appointment.patient?.full_name ?? "Patient"}
+                            {appointment.patient?.full_name ?? "Bệnh nhân"}
                           </CardTitle>
                           <p className="text-sm text-muted-foreground">
                             {appointment.doctor?.profile?.full_name ?? "—"} ·{" "}
@@ -96,7 +96,7 @@ export function CheckInPage() {
                         onClick={() => checkInMutation.mutate(appointment.id)}
                         disabled={checkInMutation.isPending}
                       >
-                        <UserCheck className="h-4 w-4" /> Check in
+                        <UserCheck className="h-4 w-4" /> Check-in
                       </Button>
                     </CardContent>
                   </Card>
@@ -108,14 +108,14 @@ export function CheckInPage() {
           {checkedIn.length > 0 && (
             <div>
               <h2 className="mb-3 text-sm font-semibold">
-                Checked in <Badge variant="secondary">{checkedIn.length}</Badge>
+                Đã check-in <Badge variant="secondary">{checkedIn.length}</Badge>
               </h2>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {checkedIn.map((appointment) => (
                   <Card key={appointment.id}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base">
-                        {appointment.patient?.full_name ?? "Patient"}
+                        {appointment.patient?.full_name ?? "Bệnh nhân"}
                       </CardTitle>
                       <p className="text-sm text-muted-foreground">
                         {formatTime(appointment.time_slot)}

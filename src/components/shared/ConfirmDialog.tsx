@@ -26,8 +26,8 @@ export function ConfirmDialog({
   trigger,
   title,
   description,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel = "Xác nhận",
+  cancelLabel = "Hủy",
   onConfirm,
   loading,
 }: ConfirmDialogProps) {

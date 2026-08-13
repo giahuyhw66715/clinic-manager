@@ -23,16 +23,16 @@ export function MyPrescriptionsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="My Prescriptions"
-        description="Track the status of your prescriptions in real time"
+        title="Đơn thuốc của tôi"
+        description="Theo dõi trạng thái đơn thuốc theo thời gian thực"
       />
 
       {isLoading ? (
         <ListSkeleton />
       ) : prescriptions.length === 0 ? (
         <EmptyState
-          title="No prescriptions yet"
-          description="Prescriptions from your doctor will appear here."
+          title="Chưa có đơn thuốc nào"
+          description="Đơn thuốc của bác sĩ sẽ hiển thị tại đây."
         />
       ) : (
         <div className="grid grid-cols-1 gap-4">
@@ -47,16 +47,16 @@ export function MyPrescriptionsPage() {
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <CardTitle className="flex items-center gap-2 text-base">
                       <FileText className="h-4 w-4 text-primary" />
-                      Prescription
+                      Đơn thuốc
                     </CardTitle>
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary">
-                        Dr. {prescription.doctor?.profile?.full_name ?? "Unknown"}
+                        BS. {prescription.doctor?.profile?.full_name ?? "Không rõ"}
                       </Badge>
                       <PrescriptionStatusBadge status={prescription.status} />
                     </div>
                   </div>
-                  <CardDescription>Issued {formatDateTime(prescription.created_at)}</CardDescription>
+                  <CardDescription>Cấp lúc {formatDateTime(prescription.created_at)}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
@@ -69,7 +69,7 @@ export function MyPrescriptionsPage() {
                           <p className="font-medium">{item.medication?.name}</p>
                           <p className="text-xs text-muted-foreground">
                             {item.dosage ? `${item.dosage} · ` : ""}
-                            Qty {item.quantity}
+                            SL {item.quantity}
                             {item.instructions ? ` · ${item.instructions}` : ""}
                           </p>
                         </div>
@@ -80,7 +80,7 @@ export function MyPrescriptionsPage() {
                     ))}
                   </ul>
                   <div className="mt-3 flex justify-end">
-                    <span className="text-sm font-semibold">Total: {formatCurrency(total)}</span>
+                    <span className="text-sm font-semibold">Tổng cộng: {formatCurrency(total)}</span>
                   </div>
                 </CardContent>
               </Card>

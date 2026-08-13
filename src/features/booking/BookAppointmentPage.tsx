@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatDate } from "@/lib/utils";
 import {
   createAppointment,
   getBookedSlots,
@@ -146,13 +147,13 @@ export function BookAppointmentPage() {
 
   const bookMutation = useMutation({
     mutationFn: async () => {
-      if (!profile) throw new Error("Not signed in");
+      if (!profile) throw new Error("Chưa đăng nhập");
       let appointmentDoctorId = doctorId;
       if (autoAssign || !appointmentDoctorId) {
         appointmentDoctorId = pickDoctor(timeSlot) ?? "";
       }
       if (!appointmentDoctorId) {
-        throw new Error("No doctor is free for this slot. Please pick another time.");
+        throw new Error("Không có bác sĩ trống vào giờ này. Vui lòng chọn thời gian khác.");
       }
       await createAppointment({
         patient_id: profile.id,
@@ -163,12 +164,12 @@ export function BookAppointmentPage() {
       });
       await createNotification(profile.id, {
         type: "appointment",
-        title: "Appointment booked",
-        body: `Your appointment is pending confirmation on ${toDateKey(date!)} at ${formatTime(timeSlot)}.`,
+        title: "Đặt lịch thành công",
+        body: `Lịch hẹn của bạn vào ${toDateKey(date!)} lúc ${formatTime(timeSlot)} đang chờ xác nhận.`,
       });
     },
     onSuccess: () => {
-      toast.success("Appointment booked successfully");
+      toast.success("Đặt lịch khám thành công");
       queryClient.invalidateQueries({ queryKey: ["my-appointments"] });
       navigate("/app/appointments", { replace: true });
     },
@@ -191,13 +192,13 @@ export function BookAppointmentPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Book an Appointment"
-        description="Choose a department, doctor, and time slot"
+        title="Đặt lịch khám"
+        description="Chọn khoa khám, bác sĩ và giờ hẹn"
       />
 
       {/* Stepper */}
       <div className="flex items-center gap-2 text-sm">
-        {["Department", "Doctor", "Date & Time"].map((label, i) => {
+        {["Khoa khám", "Bác sĩ", "Ngày & Giờ"].map((label, i) => {
           const value = (["department", "doctor", "datetime"] as Step[])[i];
           const active = step === value;
           const done = (i === 0 && !!departmentId) || (i === 1 && !!doctorId) || (i === 2 && !!date);
@@ -223,11 +224,11 @@ export function BookAppointmentPage() {
         <Card>
           <CardHeader>
             <CardTitle>
-              {step === "department" && "Select a department"}
-              {step === "doctor" && "Select a doctor"}
-              {step === "datetime" && "Select date and time"}
+              {step === "department" && "Chọn khoa khám"}
+              {step === "doctor" && "Chọn bác sĩ"}
+              {step === "datetime" && "Chọn ngày và giờ"}
             </CardTitle>
-            <CardDescription className="sr-only">Booking step</CardDescription>
+            <CardDescription className="sr-only">Bước đặt lịch</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {step === "department" && (
@@ -251,7 +252,7 @@ export function BookAppointmentPage() {
                   </button>
                 ))}
                 {departments.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No departments available yet.</p>
+                  <p className="text-sm text-muted-foreground">Chưa có khoa khám nào.</p>
                 )}
               </div>
             )}
@@ -272,9 +273,9 @@ export function BookAppointmentPage() {
                     <Shuffle className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">Auto-assign a doctor</p>
+                    <p className="font-medium">Tự động chọn bác sĩ</p>
                     <p className="text-sm text-muted-foreground">
-                      We'll pick the least-busy doctor who is free for your slot when you book.
+                      Hệ thống sẽ chọn bác sĩ rảnh nhất phù hợp với giờ bạn chọn khi đặt lịch.
                     </p>
                   </div>
                 </button>
@@ -291,10 +292,10 @@ export function BookAppointmentPage() {
                     }}
                   >
                     <Avatar>
-                      <AvatarFallback>{initials(doctor.profile?.full_name ?? "Doctor")}</AvatarFallback>
+                      <AvatarFallback>{initials(doctor.profile?.full_name ?? "Bác sĩ")}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <p className="font-medium">{doctor.profile?.full_name ?? "Unknown"}</p>
+                      <p className="font-medium">{doctor.profile?.full_name ?? "Không rõ"}</p>
                       <p className="text-sm text-muted-foreground">{doctor.specialty}</p>
                     </div>
                     <span className="text-sm font-medium">
@@ -304,7 +305,7 @@ export function BookAppointmentPage() {
                 ))}
                 {doctors.length === 0 && (
                   <p className="text-sm text-muted-foreground">
-                    No doctors in this department yet. Go back and pick another department.
+                    Khoa này chưa có bác sĩ. Vui lòng quay lại chọn khoa khác.
                   </p>
                 )}
               </div>
@@ -313,7 +314,7 @@ export function BookAppointmentPage() {
             {step === "datetime" && (
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <Label className="mb-2 block">Date *</Label>
+                  <Label className="mb-2 block">Ngày *</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -321,7 +322,7 @@ export function BookAppointmentPage() {
                         className="w-full justify-start text-left font-normal"
                       >
                         <CalendarDays className="mr-2 h-4 w-4" />
-                        {date ? date.toDateString() : "Pick a date"}
+                        {date ? formatDate(date) : "Chọn ngày"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -332,12 +333,12 @@ export function BookAppointmentPage() {
                     <p className="mt-2 text-xs text-muted-foreground">
                       {allSlots.length === 0
                         ? "The doctor is not available on this day."
-                        : `${allSlots.length} slots available`}
+                        : `${allSlots.length} suất trống`}
                     </p>
                   )}
                 </div>
                 <div>
-                  <Label className="mb-2 block">Time slot *</Label>
+                  <Label className="mb-2 block">Giờ hẹn *</Label>
                   {date && freeSlots.length > 0 ? (
                     <ScrollArea className="h-64 rounded-md border pr-2">
                       <div className="grid grid-cols-3 gap-2 p-2">
@@ -362,7 +363,7 @@ export function BookAppointmentPage() {
                     </ScrollArea>
                   ) : (
                     <div className="flex h-64 items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
-                      {date ? "No free slots on this date." : "Pick a date first."}
+                      {date ? "Không còn suất trống vào ngày này." : "Vui lòng chọn ngày trước."}
                     </div>
                   )}
                 </div>
@@ -371,18 +372,18 @@ export function BookAppointmentPage() {
 
             <div className="flex items-center justify-between pt-4">
               <Button variant="outline" onClick={handleBack} disabled={step === "department"}>
-                <ChevronLeft className="h-4 w-4" /> Back
+                <ChevronLeft className="h-4 w-4" /> Quay lại
               </Button>
               {step !== "datetime" ? (
                 <Button onClick={handleNext} disabled={!canGoNext}>
-                  Next <ChevronRight className="h-4 w-4" />
+                  Tiếp tục <ChevronRight className="h-4 w-4" />
                 </Button>
               ) : (
                 <Button
                   onClick={() => bookMutation.mutate()}
                   disabled={!timeSlot || bookMutation.isPending}
                 >
-                  {bookMutation.isPending ? "Booking..." : "Book appointment"}
+                  {bookMutation.isPending ? "Đang đặt lịch..." : "Đặt lịch khám"}
                 </Button>
               )}
             </div>
@@ -393,7 +394,7 @@ export function BookAppointmentPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Booking summary</CardTitle>
+              <CardTitle className="text-base">Tóm tắt lịch hẹn</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="flex items-center gap-3">
@@ -403,37 +404,37 @@ export function BookAppointmentPage() {
                 <div>
                   <p className="font-medium">
                     {selectedDoctor?.profile?.full_name ??
-                      (autoAssign ? "Auto-assign" : "No doctor selected")}
+                      (autoAssign ? "Tự động chọn" : "Chưa chọn bác sĩ")}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {selectedDoctor?.specialty ??
-                      (autoAssign ? "Picked when you book" : "")}
+                      (autoAssign ? "Sẽ chọn khi bạn đặt lịch" : "")}
                   </p>
                 </div>
               </div>
               <Separator />
               <div className="space-y-1">
                 <p className="flex justify-between">
-                  <span className="text-muted-foreground">Date</span>
-                  <span>{date ? date.toDateString() : "—"}</span>
+                  <span className="text-muted-foreground">Ngày</span>
+                  <span>{date ? formatDate(date) : "—"}</span>
                 </p>
                 <p className="flex justify-between">
-                  <span className="text-muted-foreground">Time</span>
+                  <span className="text-muted-foreground">Giờ</span>
                   <span>{timeSlot ? formatTime(timeSlot) : "—"}</span>
                 </p>
                 <p className="flex justify-between">
-                  <span className="text-muted-foreground">Consultation fee</span>
+                  <span className="text-muted-foreground">Phí khám</span>
                   <span>{formatCurrency(selectedDoctor?.consultation_fee ?? 0)}</span>
                 </p>
               </div>
               <Separator />
-              <Label className="block">Reason for visit (optional)</Label>
+              <Label className="block">Lý do khám (tùy chọn)</Label>
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
                 maxLength={300}
-                placeholder="Describe your symptoms..."
+                placeholder="Mô tả triệu chứng của bạn..."
                 className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
               />
             </CardContent>

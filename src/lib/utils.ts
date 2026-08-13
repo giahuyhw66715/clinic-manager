@@ -18,19 +18,19 @@ export function todayDateKey(): string {
 
 export function formatDate(date: string | Date | null | undefined): string {
   if (!date) return "-";
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("vi-VN", {
     year: "numeric",
-    month: "short",
-    day: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   }).format(new Date(date));
 }
 
 export function formatDateTime(date: string | Date | null | undefined): string {
   if (!date) return "-";
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("vi-VN", {
     year: "numeric",
-    month: "short",
-    day: "numeric",
+    month: "2-digit",
+    day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
     timeZone: "Asia/Ho_Chi_Minh",
@@ -43,14 +43,15 @@ export function formatTime(time: string): string {
 
 export function formatCurrency(amount: number | string | null | undefined): string {
   const value = Number(amount ?? 0);
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("vi-VN", {
     style: "currency",
-    currency: "USD",
+    currency: "VND",
+    maximumFractionDigits: 0,
   }).format(value);
 }
 
 export function dayOfWeekLabel(day: number): string {
-  const labels = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const labels = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
   return labels[day] ?? String(day);
 }
 

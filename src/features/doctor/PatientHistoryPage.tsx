@@ -30,10 +30,10 @@ import { formatDateTime } from "@/lib/utils";
 import type { Profile } from "@/types";
 
 const recordSchema = z.object({
-  symptoms: z.string().max(300, "Symptoms must be under 300 characters").optional(),
-  diagnosis: z.string().min(1, "Diagnosis is required").max(100, "Diagnosis must be under 100 characters"),
-  treatment_plan: z.string().max(300, "Treatment plan must be under 300 characters").optional(),
-  notes: z.string().max(300, "Notes must be under 300 characters").optional(),
+  symptoms: z.string().max(300, "Triệu chứng không được quá 300 ký tự").optional(),
+  diagnosis: z.string().min(1, "Vui lòng nhập chẩn đoán").max(100, "Chẩn đoán không được quá 100 ký tự"),
+  treatment_plan: z.string().max(300, "Kế hoạch điều trị không được quá 300 ký tự").optional(),
+  notes: z.string().max(300, "Ghi chú không được quá 300 ký tự").optional(),
 });
 
 type RecordValues = z.infer<typeof recordSchema>;
@@ -99,7 +99,7 @@ export function PatientHistoryPage() {
       });
     },
     onSuccess: () => {
-      toast.success("Medical record saved");
+      toast.success("Đã lưu hồ sơ khám bệnh");
       queryClient.invalidateQueries({ queryKey: ["patient-records"] });
       form.reset();
     },
@@ -110,26 +110,26 @@ export function PatientHistoryPage() {
     <div className="space-y-6">
       <Button variant="ghost" size="sm" asChild className="-ml-2">
         <Link to="/app/doctor/patients">
-          <ArrowLeft className="h-4 w-4" /> Back to patients
+          <ArrowLeft className="h-4 w-4" /> Quay lại danh sách bệnh nhân
         </Link>
       </Button>
 
       <PageHeader
-        title={patientProfile?.full_name ?? "Patient"}
-        description={patientProfile?.phone ?? "Patient record"}
+        title={patientProfile?.full_name ?? "Bệnh nhân"}
+        description={patientProfile?.phone ?? "Hồ sơ bệnh nhân"}
       />
 
       {patientProfile?.allergies && (
         <Alert variant="destructive">
           <Stethoscope className="h-4 w-4" />
-          <AlertTitle>Known allergies</AlertTitle>
+          <AlertTitle>Dị ứng đã biết</AlertTitle>
           <AlertDescription>{patientProfile.allergies}</AlertDescription>
         </Alert>
       )}
       {allergies.length > 0 && (
         <Alert variant="destructive">
           <Stethoscope className="h-4 w-4" />
-          <AlertTitle>Registered medication allergies</AlertTitle>
+          <AlertTitle>Dị ứng thuốc đã ghi nhận</AlertTitle>
           <AlertDescription>
             {allergies.map((a) => a.medication?.name ?? a.allergen).join(", ")}
           </AlertDescription>
@@ -138,14 +138,14 @@ export function PatientHistoryPage() {
 
       <Tabs defaultValue="records">
         <TabsList>
-          <TabsTrigger value="records">Medical records</TabsTrigger>
-          <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
-          <TabsTrigger value="new">New consultation</TabsTrigger>
+          <TabsTrigger value="records">Hồ sơ khám bệnh</TabsTrigger>
+          <TabsTrigger value="prescriptions">Đơn thuốc</TabsTrigger>
+          <TabsTrigger value="new">Khám mới</TabsTrigger>
         </TabsList>
 
         <TabsContent value="records">
           {records.length === 0 ? (
-            <EmptyState title="No medical records" description="No records for this patient yet." />
+            <EmptyState title="Không có hồ sơ khám" description="Chưa có hồ sơ khám cho bệnh nhân này." />
           ) : (
             <div className="space-y-3">
               {records.map((record) => (
@@ -154,7 +154,7 @@ export function PatientHistoryPage() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2 text-base">
                         <ClipboardList className="h-4 w-4 text-primary" />
-                        {record.diagnosis ?? "Consultation"}
+                        {record.diagnosis ?? "Buổi khám"}
                       </CardTitle>
                       <Badge variant="secondary">
                         {record.doctor?.profile?.full_name ?? "—"}
@@ -167,7 +167,7 @@ export function PatientHistoryPage() {
                   <CardContent className="space-y-1 text-sm">
                     {record.symptoms && <p>{record.symptoms}</p>}
                     {record.treatment_plan && (
-                      <p className="text-muted-foreground">Plan: {record.treatment_plan}</p>
+                      <p className="text-muted-foreground">Kế hoạch: {record.treatment_plan}</p>
                     )}
                   </CardContent>
                 </Card>
@@ -178,7 +178,7 @@ export function PatientHistoryPage() {
 
         <TabsContent value="prescriptions">
           {prescriptions.length === 0 ? (
-            <EmptyState title="No prescriptions" description="No prescriptions for this patient yet." />
+            <EmptyState title="Không có đơn thuốc" description="Chưa có đơn thuốc cho bệnh nhân này." />
           ) : (
             <div className="space-y-3">
               {prescriptions.map((prescription) => (
@@ -210,7 +210,7 @@ export function PatientHistoryPage() {
         <TabsContent value="new" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">New SOAP record</CardTitle>
+              <CardTitle className="text-base">Hồ sơ SOAP mới</CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -224,9 +224,9 @@ export function PatientHistoryPage() {
                       name="symptoms"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Symptoms</FormLabel>
+                          <FormLabel>Triệu chứng</FormLabel>
                           <FormControl>
-                            <Textarea rows={2} maxLength={300} placeholder="Subjective symptoms" {...field} />
+                            <Textarea rows={2} maxLength={300} placeholder="Triệu chứng chủ quan" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -237,9 +237,9 @@ export function PatientHistoryPage() {
                       name="diagnosis"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Diagnosis *</FormLabel>
+                          <FormLabel>Chẩn đoán *</FormLabel>
                           <FormControl>
-                            <Input maxLength={100} placeholder="e.g. Hypertension" {...field} />
+                            <Input maxLength={100} placeholder="VD: Tăng huyết áp" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -251,9 +251,9 @@ export function PatientHistoryPage() {
                     name="treatment_plan"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Treatment plan</FormLabel>
+                        <FormLabel>Kế hoạch điều trị</FormLabel>
 <FormControl>
-                            <Textarea rows={2} maxLength={300} placeholder="Plan, follow-up..." {...field} />
+                            <Textarea rows={2} maxLength={300} placeholder="Kế hoạch, tái khám..." {...field} />
                           </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -264,16 +264,16 @@ export function PatientHistoryPage() {
                     name="notes"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Notes</FormLabel>
+                        <FormLabel>Ghi chú</FormLabel>
 <FormControl>
-                            <Textarea rows={2} maxLength={300} placeholder="Additional notes" {...field} />
+                            <Textarea rows={2} maxLength={300} placeholder="Ghi chú thêm" {...field} />
                           </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   <Button type="submit" disabled={saveRecordMutation.isPending}>
-                    {saveRecordMutation.isPending ? "Saving..." : "Save record"}
+                    {saveRecordMutation.isPending ? "Đang lưu..." : "Lưu hồ sơ"}
                   </Button>
                 </form>
               </Form>
@@ -283,7 +283,7 @@ export function PatientHistoryPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <Plus className="h-4 w-4" /> Issue prescription
+                <Plus className="h-4 w-4" /> Kê đơn thuốc
               </CardTitle>
             </CardHeader>
             <CardContent>
