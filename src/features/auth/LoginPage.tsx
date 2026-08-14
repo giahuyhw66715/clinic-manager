@@ -24,10 +24,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { emailSchema, passwordSchema } from "@/lib/validation";
 
 const loginSchema = z.object({
-  email: z.string().email("Vui lòng nhập email hợp lệ").max(100, "Email không được quá 100 ký tự"),
-  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").max(100, "Mật khẩu không được quá 100 ký tự"),
+  email: emailSchema,
+  password: passwordSchema,
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
@@ -62,7 +63,7 @@ export function LoginPage() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -70,7 +71,7 @@ export function LoginPage() {
                   <FormItem>
                     <FormLabel>Email *</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="you@example.com" maxLength={100} {...field} />
+                      <Input type="text" inputMode="email" autoComplete="email" placeholder="you@example.com" maxLength={100} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

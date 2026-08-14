@@ -24,15 +24,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { emailSchema, passwordSchema } from "@/lib/validation";
 
 const registerSchema = z.object({
   fullName: z.string().min(2, "Vui lòng nhập họ và tên").max(100, "Họ và tên không được quá 100 ký tự"),
-  email: z.string().email("Vui lòng nhập email hợp lệ").max(100, "Email không được quá 100 ký tự"),
+  email: emailSchema,
   phone: z.string().max(100, "Số điện thoại không được quá 100 ký tự").optional().refine((val) => !val || /^[\d+\-\s\(\)]+$/.test(val), {
     message: "Số điện thoại chỉ được chứa chữ số, gạch ngang, khoảng trắng hoặc dấu ngoặc",
   }),
-  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").max(100, "Mật khẩu không được quá 100 ký tự"),
-  confirmPassword: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").max(100, "Mật khẩu không được quá 100 ký tự"),
+  password: passwordSchema,
+  confirmPassword: passwordSchema,
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Mật khẩu xác nhận không khớp",
   path: ["confirmPassword"],
@@ -74,7 +75,7 @@ export function RegisterPage() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-4">
               <FormField
                 control={form.control}
                 name="fullName"
@@ -95,7 +96,7 @@ export function RegisterPage() {
                   <FormItem>
                     <FormLabel>Email *</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="you@example.com" maxLength={100} {...field} />
+                      <Input type="text" inputMode="email" autoComplete="email" placeholder="you@example.com" maxLength={100} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
