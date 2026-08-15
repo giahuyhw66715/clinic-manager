@@ -254,7 +254,6 @@ export async function getMyAppointments(patientId: string): Promise<Appointment[
     .from("appointments")
     .select(appointmentSelect)
     .eq("patient_id", patientId)
-    .order("appointment_date", { ascending: false })
     .order("created_at", { ascending: false });
   if (error) getErrorMessage(error);
   return (data ?? []) as unknown as Appointment[];
