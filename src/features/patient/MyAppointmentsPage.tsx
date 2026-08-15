@@ -95,7 +95,14 @@ export function MyAppointmentsPage() {
       setTimeSlot("");
       invalidate();
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      if (e.message.includes("duplicate key value violates unique constraint")) {
+        toast.error("Khung giờ này vừa được đặt. Vui lòng chọn giờ khác.");
+        queryClient.invalidateQueries({ queryKey: ["booked-slots"] });
+        return;
+      }
+      toast.error(e.message);
+    },
   });
 
   const canCancel = (appointmentDate: string, timeSlot: string, status: string) => {

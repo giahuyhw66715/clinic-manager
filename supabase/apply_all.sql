@@ -103,9 +103,12 @@ create table public.appointments (
   status public.appointment_status not null default 'pending',
   paid boolean not null default false,
   notes text,
-  created_at timestamptz not null default now(),
-  unique (doctor_id, appointment_date, time_slot)
+  created_at timestamptz not null default now()
 );
+
+create unique index appointments_active_slot_key
+  on public.appointments (doctor_id, appointment_date, time_slot)
+  where status in ('pending', 'confirmed', 'checked-in', 'in-progress');
 
 create index appointments_patient_idx on public.appointments (patient_id);
 create index appointments_doctor_date_idx on public.appointments (doctor_id, appointment_date);
@@ -349,6 +352,24 @@ create policy "appointments_update" on public.appointments
   );
 create policy "appointments_delete_admin" on public.appointments
   for delete using (public.is_admin());
+
+-- Patients can only see their own appointments via RLS, so expose only the
+-- already-taken time slots of a doctor (no patient data leaks).
+create or replace function public.get_booked_slots(target_doctor_id uuid, target_date date)
+returns setof text
+language sql
+security definer
+set search_path = public
+as $$
+  select time_slot::text
+  from public.appointments
+  where doctor_id = target_doctor_id
+    and appointment_date = target_date
+    and status in ('pending', 'confirmed', 'checked-in', 'in-progress');
+$$;
+
+revoke all on function public.get_booked_slots(uuid, date) from public;
+grant execute on function public.get_booked_slots(uuid, date) to authenticated;
 
 -- ----------------------------------------------------------------------------
 -- medical_records

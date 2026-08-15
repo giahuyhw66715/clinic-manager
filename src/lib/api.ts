@@ -315,14 +315,12 @@ export async function getAppointmentById(id: string): Promise<Appointment | null
 }
 
 export async function getBookedSlots(doctorId: string, date: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from("appointments")
-    .select("time_slot")
-    .eq("doctor_id", doctorId)
-    .eq("appointment_date", date)
-    .in("status", ["pending", "confirmed", "checked-in", "in-progress"]);
+  const { data, error } = await supabase.rpc("get_booked_slots", {
+    target_doctor_id: doctorId,
+    target_date: date,
+  });
   if (error) getErrorMessage(error);
-  return (data ?? []).map((row) => row.time_slot);
+  return (data ?? []) as string[];
 }
 
 export async function getTodayAppointmentsForCheckIn(): Promise<Appointment[]> {

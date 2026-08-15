@@ -129,6 +129,16 @@ export function BookAppointmentPage() {
     [freeSlots, isToday],
   );
 
+  const isSlotBooked = (slot: string) => {
+    if (!date) return false;
+    if (autoAssign) {
+      return !autoAvailability.some((r) =>
+        generateSlotsForDate(r.schedules, r.offDays, r.bookedSlots, date).includes(slot),
+      );
+    }
+    return bookedSlots.includes(slot);
+  };
+
   const isDateDisabled = (d: Date) => {
     if (differenceInCalendarDays(d, new Date()) < 0) return true;
     if (differenceInCalendarDays(d, new Date()) > 45) return true;
@@ -178,7 +188,14 @@ export function BookAppointmentPage() {
       queryClient.invalidateQueries({ queryKey: ["my-appointments"] });
       navigate("/app/appointments", { replace: true });
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error) => {
+      if (error.message.includes("duplicate key value violates unique constraint")) {
+        toast.error("Khung giờ này vừa được đặt. Vui lòng chọn giờ khác.");
+        queryClient.invalidateQueries({ queryKey: ["booked-slots"] });
+        return;
+      }
+      toast.error(error.message);
+    },
   });
 
   const canGoNext = step === "department" ? !!departmentId : step === "doctor" ? true : !!date;
@@ -346,16 +363,22 @@ export function BookAppointmentPage() {
                 </div>
                 <div>
                   <Label className="mb-2 block">Giờ hẹn *</Label>
-                  {date && selectableSlots.length > 0 ? (
+                  {date && allSlots.length > 0 ? (
                     <ScrollArea className="h-64 rounded-md border pr-2">
                       <div className="grid grid-cols-3 gap-2 p-2">
-                        {selectableSlots.map((slot) => {
+                        {allSlots.map((slot) => {
+                          const booked = isSlotBooked(slot);
+                          const past = isToday && isPastSlot(slot);
+                          const disabled = booked || past;
                           return (
                             <button
                               key={slot}
+                              disabled={disabled}
                               className={cn(
                                 "rounded-md border p-2 text-sm transition-colors hover:border-primary",
                                 timeSlot === slot && "border-primary bg-primary text-primary-foreground",
+                                disabled && "cursor-not-allowed opacity-40 hover:border-border",
+                                booked && "line-through",
                               )}
                               onClick={() => setTimeSlot(slot)}
                             >
@@ -367,7 +390,7 @@ export function BookAppointmentPage() {
                     </ScrollArea>
                   ) : (
                     <div className="flex h-64 items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
-                      {date ? "Không còn suất trống vào ngày này." : "Vui lòng chọn ngày trước."}
+                      {date ? "Bác sĩ không làm việc vào ngày này." : "Vui lòng chọn ngày trước."}
                     </div>
                   )}
                 </div>
