@@ -57,7 +57,7 @@ export function MySchedulePage() {
       if (!doctor || !offDate) return;
       await createDoctorOffDay({
         doctor_id: doctor.id,
-        off_date: offDate.toISOString().slice(0, 10),
+        off_date: format(offDate, "yyyy-MM-dd"),
         reason: reason || undefined,
       });
     },

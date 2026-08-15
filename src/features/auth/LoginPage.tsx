@@ -84,7 +84,7 @@ export function LoginPage() {
                   <FormItem>
                     <FormLabel>Mật khẩu *</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" maxLength={100} {...field} />
+                      <Input type="password" placeholder="••••••••" maxLength={50} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

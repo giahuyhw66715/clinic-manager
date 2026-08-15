@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { todayDateKey } from "@/lib/utils";
+import { toDateKey, todayDateKey } from "@/lib/utils";
 import type {
   Appointment,
   Department,
@@ -272,7 +272,7 @@ export async function getDoctorNoShowCancelled(doctorId: string): Promise<Appoin
     .select(appointmentSelect)
     .eq("doctor_id", doctorId)
     .in("status", ["no-show", "cancelled"])
-    .gte("appointment_date", since.toISOString().slice(0, 10))
+    .gte("appointment_date", toDateKey(since))
     .order("appointment_date", { ascending: false })
     .order("time_slot");
   if (error) getErrorMessage(error);

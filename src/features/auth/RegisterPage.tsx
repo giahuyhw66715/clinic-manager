@@ -27,10 +27,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { emailSchema, passwordSchema } from "@/lib/validation";
 
 const registerSchema = z.object({
-  fullName: z.string().min(2, "Vui lòng nhập họ và tên").max(100, "Họ và tên không được quá 100 ký tự"),
+  fullName: z.string().min(1, "Vui lòng nhập họ và tên").max(100, "Họ và tên không được quá 100 ký tự"),
   email: emailSchema,
-  phone: z.string().max(100, "Số điện thoại không được quá 100 ký tự").optional().refine((val) => !val || /^[\d+\-\s\(\)]+$/.test(val), {
-    message: "Số điện thoại chỉ được chứa chữ số, gạch ngang, khoảng trắng hoặc dấu ngoặc",
+  phone: z.string().optional().refine((val) => !val || /^\d{10}$/.test(val), {
+    message: "Số điện thoại phải gồm đúng 10 chữ số",
   }),
   password: passwordSchema,
   confirmPassword: passwordSchema,
@@ -56,7 +56,7 @@ export function RegisterPage() {
       toast.error(error);
       return;
     }
-    toast.success("Đã tạo tài khoản. Bạn có thể đăng nhập ngay bây giờ.");
+    toast.success("Đăng ký thành công");
     navigate("/login");
   }
 
@@ -109,7 +109,14 @@ export function RegisterPage() {
                   <FormItem>
                     <FormLabel>Số điện thoại (tùy chọn)</FormLabel>
                     <FormControl>
-                      <Input placeholder="0912 345 678" maxLength={100} {...field} />
+                      <Input
+  type="text"
+  inputMode="numeric"
+  maxLength={10}
+  placeholder="0912345678"
+  {...field}
+  onChange={(e) => field.onChange(e.target.value.replace(/\D/g, "").slice(0, 10))}
+/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,7 +130,7 @@ export function RegisterPage() {
                     <FormItem>
                       <FormLabel>Mật khẩu *</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" maxLength={100} {...field} />
+                        <Input type="password" placeholder="••••••••" maxLength={50} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -136,7 +143,7 @@ export function RegisterPage() {
                     <FormItem>
                       <FormLabel>Xác nhận mật khẩu *</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" maxLength={100} {...field} />
+                        <Input type="password" placeholder="••••••••" maxLength={50} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
