@@ -124,6 +124,11 @@ export function BookAppointmentPage() {
     return slotDate.getTime() < Date.now();
   };
 
+  const selectableSlots = useMemo(
+    () => freeSlots.filter((s) => !(isToday && isPastSlot(s))),
+    [freeSlots, isToday],
+  );
+
   const isDateDisabled = (d: Date) => {
     if (differenceInCalendarDays(d, new Date()) < 0) return true;
     if (differenceInCalendarDays(d, new Date()) > 45) return true;
@@ -332,26 +337,25 @@ export function BookAppointmentPage() {
                   {date && (
                     <p className="mt-2 text-xs text-muted-foreground">
                       {allSlots.length === 0
-                        ? "The doctor is not available on this day."
-                        : `${allSlots.length} suất trống`}
+                        ? "Bác sĩ không làm việc vào ngày này."
+                        : selectableSlots.length === 0
+                          ? "Không còn suất trống vào ngày này."
+                          : `${selectableSlots.length} suất trống`}
                     </p>
                   )}
                 </div>
                 <div>
                   <Label className="mb-2 block">Giờ hẹn *</Label>
-                  {date && freeSlots.length > 0 ? (
+                  {date && selectableSlots.length > 0 ? (
                     <ScrollArea className="h-64 rounded-md border pr-2">
                       <div className="grid grid-cols-3 gap-2 p-2">
-                        {freeSlots.map((slot) => {
-                          const past = isToday && isPastSlot(slot);
+                        {selectableSlots.map((slot) => {
                           return (
                             <button
                               key={slot}
-                              disabled={past}
                               className={cn(
                                 "rounded-md border p-2 text-sm transition-colors hover:border-primary",
                                 timeSlot === slot && "border-primary bg-primary text-primary-foreground",
-                                past && "cursor-not-allowed opacity-40 hover:border-border",
                               )}
                               onClick={() => setTimeSlot(slot)}
                             >
