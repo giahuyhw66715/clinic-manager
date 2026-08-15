@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { TimelineSkeleton } from "@/components/shared/Skeletons";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { ExpandableText } from "@/components/shared/ExpandableText";
 import { getPatientMedicalRecords } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDateTime } from "@/lib/utils";
@@ -66,18 +67,30 @@ export function MedicalHistoryPage() {
                   </CardHeader>
                   <CardContent>
                     <dl className="space-y-3">
-                      {recordFields.map((field) => {
-                        const value = record[field.key];
-                        if (!value) return null;
-                        return (
-                          <div key={field.key}>
-                            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                              {field.label}
-                            </dt>
-                            <dd className="mt-1 text-sm">{value}</dd>
-                          </div>
-                        );
-                      })}
+                      {recordFields
+                        .filter((f) => f.key !== "notes")
+                        .map((field) => {
+                          const value = record[field.key];
+                          if (!value) return null;
+                          return (
+                            <div key={field.key}>
+                              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                {field.label}
+                              </dt>
+                              <dd className="mt-1 text-sm">{value}</dd>
+                            </div>
+                          );
+                        })}
+                      <div>
+                        <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          Ghi chú
+                        </dt>
+                        <ExpandableText
+                          text={record.notes}
+                          emptyText="Không có ghi chú"
+                          className="mt-1 text-sm"
+                        />
+                      </div>
                     </dl>
                   </CardContent>
                 </Card>

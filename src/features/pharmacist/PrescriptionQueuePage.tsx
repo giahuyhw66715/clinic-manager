@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCheck, ClipboardList, PackageCheck, Send } from "lucide-react";
+import { CheckCheck, ChevronDown, ChevronUp, ClipboardList, PackageCheck, Send } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CardGridSkeleton } from "@/components/shared/Skeletons";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { ExpandableText } from "@/components/shared/ExpandableText";
 import { Pagination, usePagination } from "@/components/shared/Pagination";
 import { PrescriptionStatusBadge } from "@/components/shared/StatusBadge";
 import { getPharmacyPrescriptions, updatePrescriptionStatus } from "@/lib/api";
@@ -28,6 +29,19 @@ const statusTabs: { value: PrescriptionStatus | "all"; label: string }[] = [
 export function PrescriptionQueuePage() {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<PrescriptionStatus | "all">("sent");
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+
+  const toggleItems = (id: string) => {
+    setExpandedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   const { data: prescriptions = [], isLoading } = useQuery({
     queryKey: ["pharmacy-prescriptions"],
@@ -113,32 +127,48 @@ export function PrescriptionQueuePage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <ul className="space-y-1.5">
-                  {prescription.items.slice(0, 4).map((item) => (
-                    <li
-                      key={item.id}
-                      className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
-                    >
-                      <span className="truncate">
-                        {item.medication?.name}{" "}
-                        <span className="text-muted-foreground">× {item.quantity}</span>
-                      </span>
-                      {item.dosage && (
-                        <span className="shrink-0 text-xs text-muted-foreground">{item.dosage}</span>
-                      )}
-                    </li>
-                  ))}
-                  {prescription.items.length > 4 && (
-                    <li className="rounded-md border border-dashed px-3 py-2 text-xs text-muted-foreground">
-                      +{prescription.items.length - 4} mục nữa
+                  {prescription.items
+                    .slice(0, expandedItems.has(prescription.id) ? prescription.items.length : 1)
+                    .map((item) => (
+                      <li
+                        key={item.id}
+                        className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                      >
+                        <span className="truncate">
+                          {item.medication?.name}{" "}
+                          <span className="text-muted-foreground">× {item.quantity}</span>
+                        </span>
+                        {item.dosage && (
+                          <span className="shrink-0 text-xs text-muted-foreground">{item.dosage}</span>
+                        )}
+                      </li>
+                    ))}
+                  {prescription.items.length > 1 && (
+                    <li>
+                      <button
+                        type="button"
+                        onClick={() => toggleItems(prescription.id)}
+                        className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                      >
+                        {expandedItems.has(prescription.id) ? (
+                          <>
+                            <ChevronUp className="h-3.5 w-3.5" /> Thu gọn
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="h-3.5 w-3.5" /> Xem toàn bộ thuốc
+                          </>
+                        )}
+                      </button>
                     </li>
                   )}
                 </ul>
 
-                {prescription.notes && (
-                  <p className="line-clamp-2 rounded-md bg-muted px-3 py-2 text-xs leading-relaxed text-muted-foreground">
-                    {prescription.notes}
-                  </p>
-                )}
+                <ExpandableText
+                  text={prescription.notes}
+                  emptyText="Không có ghi chú"
+                  className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground"
+                />
 
                 <div className="flex flex-wrap gap-2 pt-1">
                   {prescription.status === "sent" && (

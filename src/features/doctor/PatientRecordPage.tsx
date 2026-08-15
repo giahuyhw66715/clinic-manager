@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { DetailSkeleton } from "@/components/shared/Skeletons";
 import { AppointmentStatusBadge } from "@/components/shared/StatusBadge";
+import { ExpandableText } from "@/components/shared/ExpandableText";
 import { PrescriptionForm } from "@/features/doctor/components/PrescriptionForm";
 import {
   createInvoice,
@@ -242,9 +243,9 @@ export function PatientRecordPage() {
               </p>
               <p className="text-muted-foreground">{patient?.email ?? "—"}</p>
               <Separator />
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Lý do</span>
-                <span>{appointment.reason ?? "—"}</span>
+              <div className="flex justify-between gap-3">
+                <span className="shrink-0 text-muted-foreground">Lý do</span>
+                <span className="truncate text-right">{appointment.reason || "Không có lý do"}</span>
               </div>
             </CardContent>
           </Card>
@@ -308,12 +309,13 @@ export function PatientRecordPage() {
                         <dd>{currentRecord.treatment_plan}</dd>
                       </div>
                     )}
-                    {currentRecord.notes && (
-                      <div>
-                        <dt className="text-xs text-muted-foreground">Ghi chú</dt>
-                        <dd>{currentRecord.notes}</dd>
-                      </div>
-                    )}
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Ghi chú</dt>
+                      <ExpandableText
+                        text={currentRecord.notes}
+                        emptyText="Không có ghi chú"
+                      />
+                    </div>
                   </dl>
                 ) : (
                   <p className="text-sm text-muted-foreground">Không tìm thấy hồ sơ khám.</p>

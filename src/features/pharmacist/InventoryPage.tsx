@@ -187,7 +187,7 @@ export function InventoryPage() {
                 <TableRow key={medication.id}>
                   <TableCell className="font-medium">{medication.name}</TableCell>
                   <TableCell className="max-w-[200px] truncate text-muted-foreground">
-                    {medication.description ?? "—"}
+                    {medication.description || "Không có mô tả"}
                   </TableCell>
                   <TableCell>{medication.dosage_unit ?? "—"}</TableCell>
                   <TableCell className="text-right">{formatCurrency(medication.price)}</TableCell>

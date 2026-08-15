@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { CardGridSkeleton } from "@/components/shared/Skeletons";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Pagination, usePagination } from "@/components/shared/Pagination";
+import { ExpandableText } from "@/components/shared/ExpandableText";
 import { AppointmentStatusBadge } from "@/components/shared/StatusBadge";
 import {
   getDoctorByUserId,
@@ -142,9 +143,11 @@ export function DoctorQueuePage() {
                         Dị ứng: {appointment.patient.allergies}
                       </p>
                     )}
-                    {appointment.reason && (
-                      <p className="line-clamp-3 text-muted-foreground">{appointment.reason}</p>
-                    )}
+                    <ExpandableText
+                      text={appointment.reason}
+                      emptyText="Không có lý do"
+                      className="text-muted-foreground"
+                    />
                     <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
                       <div className="flex flex-wrap gap-2">
                         {(appointment.status === "confirmed" ||
@@ -291,11 +294,9 @@ export function DoctorQueuePage() {
                     </div>
                   </CardHeader>
                   <CardContent className="flex flex-1 flex-col gap-3 text-sm">
-                    {appointment.cancel_reason && (
-                      <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-                        {appointment.cancel_reason}
-                      </p>
-                    )}
+                    <p className="truncate rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+                      {appointment.cancel_reason || "Không có lý do hủy"}
+                    </p>
                   </CardContent>
                 </Card>
               ))}

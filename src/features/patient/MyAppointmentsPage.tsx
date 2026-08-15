@@ -28,6 +28,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { CardGridSkeleton } from "@/components/shared/Skeletons";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { ExpandableText } from "@/components/shared/ExpandableText";
 import { Pagination, usePagination } from "@/components/shared/Pagination";
 import { AppointmentStatusBadge } from "@/components/shared/StatusBadge";
 import { getMyAppointments, updateAppointmentSchedule, updateAppointmentStatus, getDoctorSchedules, getDoctorOffDays, getBookedSlots } from "@/lib/api";
@@ -175,9 +176,11 @@ export function MyAppointmentsPage() {
                   {format(parseISO(appointment.appointment_date + "T00:00:00"), "dd/MM/yyyy")} lúc{" "}
                   {formatTime(appointment.time_slot)}
                 </div>
-                {appointment.reason && (
-                  <p className="text-muted-foreground">{appointment.reason}</p>
-                )}
+                <ExpandableText
+                  text={appointment.reason}
+                  emptyText="Không có lý do"
+                  className="text-muted-foreground"
+                />
                 <div className="flex flex-wrap gap-2 pt-1">
                   {(appointment.status === "pending" || appointment.status === "confirmed") && (
                     <>
