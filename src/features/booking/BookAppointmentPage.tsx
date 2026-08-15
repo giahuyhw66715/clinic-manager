@@ -351,6 +351,11 @@ export function BookAppointmentPage() {
                       <Calendar mode="single" selected={date} onSelect={setDate} disabled={isDateDisabled} />
                     </PopoverContent>
                   </Popover>
+                  {!autoAssign && doctorId && schedules.length === 0 && (
+                    <p className="mt-2 text-xs text-amber-600">
+                      Bác sĩ này chưa thiết lập lịch làm việc. Vui lòng liên hệ quản trị viên.
+                    </p>
+                  )}
                   {date && (
                     <p className="mt-2 text-xs text-muted-foreground">
                       {allSlots.length === 0

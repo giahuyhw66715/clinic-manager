@@ -115,14 +115,32 @@ export async function createDoctor(input: {
   consultation_fee: number;
   bio?: string;
 }): Promise<void> {
-  const { error } = await supabase.from("doctors").insert({
-    user_id: input.user_id,
-    department_id: input.department_id,
-    specialty: input.specialty,
-    consultation_fee: input.consultation_fee,
-    bio: input.bio ?? null,
-  });
+  const { data, error } = await supabase
+    .from("doctors")
+    .insert({
+      user_id: input.user_id,
+      department_id: input.department_id,
+      specialty: input.specialty,
+      consultation_fee: input.consultation_fee,
+      bio: input.bio ?? null,
+    })
+    .select("id")
+    .single();
   if (error) getErrorMessage(error);
+  const doctorId = (data as { id: string } | null)?.id;
+  if (!doctorId) return;
+
+  const defaultSchedules = [
+    { doctor_id: doctorId, day_of_week: 0, start_time: "08:00", end_time: "12:00", slot_minutes: 30 },
+    { doctor_id: doctorId, day_of_week: 1, start_time: "08:00", end_time: "17:00", slot_minutes: 30 },
+    { doctor_id: doctorId, day_of_week: 2, start_time: "08:00", end_time: "17:00", slot_minutes: 30 },
+    { doctor_id: doctorId, day_of_week: 3, start_time: "08:00", end_time: "17:00", slot_minutes: 30 },
+    { doctor_id: doctorId, day_of_week: 4, start_time: "08:00", end_time: "17:00", slot_minutes: 30 },
+    { doctor_id: doctorId, day_of_week: 5, start_time: "08:00", end_time: "17:00", slot_minutes: 30 },
+    { doctor_id: doctorId, day_of_week: 6, start_time: "08:00", end_time: "12:00", slot_minutes: 30 },
+  ];
+  const { error: schedError } = await supabase.from("doctor_schedules").insert(defaultSchedules);
+  if (schedError) getErrorMessage(schedError);
 }
 
 export async function updateDoctor(id: string, input: Partial<Doctor>): Promise<void> {
