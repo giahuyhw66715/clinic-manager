@@ -16,4 +16,4 @@ alter default privileges in schema public grant all on routines to anon, authent
 
 -- Remove any seed auth users created by a previous partial run
 -- (do this after dropping public schema so the handle_new_user trigger is gone)
-delete from auth.users where email like '%@clinic.test';
+delete from auth.users where email like '%@clinic.vn' or email like '%@clinic.test';

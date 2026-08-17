@@ -535,13 +535,13 @@ alter publication supabase_realtime add table public.notifications;
 -- ============================================================================
 -- ClinicManager - Seed data (sample accounts, departments, doctors, catalog)
 -- Sample login credentials (change in production):
---   admin@clinic.test      / Password123!
---   doctor1@clinic.test    / Password123!
---   doctor2@clinic.test    / Password123!
---   doctor3@clinic.test    / Password123!
---   pharmacist@clinic.test / Password123!
---   patient1@clinic.test   / Password123!
---   patient2@clinic.test   / Password123!
+--   alex.admin@clinic.vn     / Password123!   (admin)
+--   mai.nguyen@clinic.vn     / Password123!   (doctor)
+--   john.carter@clinic.vn    / Password123!   (doctor)
+--   sarah.kim@clinic.vn      / Password123!   (doctor)
+--   lena@clinic.vn           / Password123!   (pharmacist)
+--   peter.parker@gmail.com   / Password123!   (patient)
+--   mary.watson@gmail.com    / Password123!   (patient)
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -553,25 +553,25 @@ insert into auth.users (
   email_change, email_change_token_new, email_change_token_current
 ) values
   ('00000000-0000-0000-0000-000000000000', '11111111-1111-4111-8111-111111111111', 'authenticated', 'authenticated',
-   'admin@clinic.test', crypt('Password123!', gen_salt('bf')), now(),
+   'alex.admin@clinic.vn', crypt('Password123!', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Alex Admin"}', now(), now(), '', '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '22222222-2222-4222-8222-222222222222', 'authenticated', 'authenticated',
-   'doctor1@clinic.test', crypt('Password123!', gen_salt('bf')), now(),
+   'mai.nguyen@clinic.vn', crypt('Password123!', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Dr. Mai Nguyen"}', now(), now(), '', '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '33333333-3333-4333-8333-333333333333', 'authenticated', 'authenticated',
-   'doctor2@clinic.test', crypt('Password123!', gen_salt('bf')), now(),
+   'john.carter@clinic.vn', crypt('Password123!', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Dr. John Carter"}', now(), now(), '', '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '44444444-4444-4444-8444-444444444444', 'authenticated', 'authenticated',
-   'doctor3@clinic.test', crypt('Password123!', gen_salt('bf')), now(),
+   'sarah.kim@clinic.vn', crypt('Password123!', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Dr. Sarah Kim"}', now(), now(), '', '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '55555555-5555-4555-8555-555555555555', 'authenticated', 'authenticated',
-   'pharmacist@clinic.test', crypt('Password123!', gen_salt('bf')), now(),
+   'lena@clinic.vn', crypt('Password123!', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Nurse Lena"}', now(), now(), '', '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '66666666-6666-4666-8666-666666666666', 'authenticated', 'authenticated',
-   'patient1@clinic.test', crypt('Password123!', gen_salt('bf')), now(),
+   'peter.parker@gmail.com', crypt('Password123!', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Peter Parker"}', now(), now(), '', '', '', '', ''),
   ('00000000-0000-0000-0000-000000000000', '77777777-7777-4777-8777-777777777777', 'authenticated', 'authenticated',
-   'patient2@clinic.test', crypt('Password123!', gen_salt('bf')), now(),
+   'mary.watson@gmail.com', crypt('Password123!', gen_salt('bf')), now(),
    '{"provider":"email","providers":["email"]}', '{"full_name":"Mary Watson"}', now(), now(), '', '', '', '', '');
 
 -- ----------------------------------------------------------------------------

@@ -13,12 +13,12 @@ update auth.users set
   email_change_token_current  = coalesce(email_change_token_current, ''),
   phone_change                = coalesce(phone_change, ''),
   phone_change_token          = coalesce(phone_change_token, '')
-where email like '%@clinic.test';
+where email like '%@clinic.vn' or email like '%@clinic.test';
 
 -- Verify what gotrue will scan for the doctor account
 select email, confirmation_token, recovery_token, email_change,
        email_change_token_new is null as token_new_null,
        email_change_token_current is null as token_cur_null
 from auth.users
-where email like '%@clinic.test'
+where email like '%@clinic.vn' or email like '%@clinic.test'
 order by email;
