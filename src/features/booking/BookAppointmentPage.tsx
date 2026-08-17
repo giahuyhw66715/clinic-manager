@@ -383,7 +383,6 @@ export function BookAppointmentPage() {
                                 "rounded-md border p-2 text-sm transition-colors hover:border-primary",
                                 timeSlot === slot && "border-primary bg-primary text-primary-foreground",
                                 disabled && "cursor-not-allowed opacity-40 hover:border-border",
-                                booked && "line-through",
                               )}
                               onClick={() => setTimeSlot(slot)}
                             >

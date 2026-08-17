@@ -349,6 +349,7 @@ create policy "appointments_update" on public.appointments
     public.is_admin()
     or public.current_role() = 'pharmacist'
     or doctor_id = public.current_doctor_id()
+    or (public.current_role() = 'patient' and patient_id = auth.uid())
   );
 create policy "appointments_delete_admin" on public.appointments
   for delete using (public.is_admin());

@@ -33,7 +33,7 @@ import { Pagination, usePagination } from "@/components/shared/Pagination";
 import { AppointmentStatusBadge } from "@/components/shared/StatusBadge";
 import { getMyAppointments, updateAppointmentSchedule, updateAppointmentStatus, getDoctorSchedules, getDoctorOffDays, getBookedSlots } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
-import { generateSlotsForDate } from "@/lib/availability";
+import { generateAllSlotsForDate } from "@/lib/availability";
 import { cn, formatDate, formatTime, toDateKey } from "@/lib/utils";
 
 export const CANCEL_WINDOW_HOURS = 6;
@@ -112,8 +112,8 @@ export function MyAppointmentsPage() {
     return differenceInHours(appointmentTime, new Date()) >= CANCEL_WINDOW_HOURS;
   };
 
-  const freeSlots = date && rescheduling
-    ? generateSlotsForDate(schedules, offDays, bookedSlots, date)
+  const allSlots = date && rescheduling
+    ? generateAllSlotsForDate(schedules, offDays, date)
     : [];
 
   const rescheduleIsToday = date != null && differenceInCalendarDays(date, new Date()) === 0;
@@ -261,23 +261,25 @@ disabled={!canCancel(appointment.appointment_date, appointment.time_slot, appoin
             <div>
               <Label className="mb-2 block">Giờ mới *</Label>
               {date ? (
-                freeSlots.length === 0 ? (
-                  <div className="flex h-9 items-center rounded-md border border-dashed text-xs text-muted-foreground">
-                    Không còn suất trống
+                allSlots.length === 0 ? (
+                  <div className="flex h-48 items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
+                    Bác sĩ không làm việc vào ngày này.
                   </div>
                 ) : (
                   <ScrollArea className="h-48 rounded-md border pr-2">
                     <div className="grid grid-cols-3 gap-2 p-2">
-                      {freeSlots.map((slot) => {
+                      {allSlots.map((slot) => {
+                        const booked = bookedSlots.includes(slot);
                         const past = rescheduleIsToday && isPastSlot(slot);
+                        const disabled = booked || past;
                         return (
                           <button
                             key={slot}
-                            disabled={past}
+                            disabled={disabled}
                             className={cn(
                               "rounded-md border p-2 text-sm transition-colors hover:border-primary",
                               timeSlot === slot && "border-primary bg-primary text-primary-foreground",
-                              past && "cursor-not-allowed opacity-40 hover:border-border",
+                              disabled && "cursor-not-allowed opacity-40 hover:border-border",
                             )}
                             onClick={() => setTimeSlot(slot)}
                           >
@@ -289,7 +291,7 @@ disabled={!canCancel(appointment.appointment_date, appointment.time_slot, appoin
                   </ScrollArea>
                 )
               ) : (
-                <div className="flex h-9 items-center rounded-md border border-dashed text-xs text-muted-foreground">
+                <div className="flex h-48 items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground">
                   Vui lòng chọn ngày trước
                 </div>
               )}
