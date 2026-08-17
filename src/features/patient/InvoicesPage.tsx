@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, pdf, Font } from "@react-pdf/renderer";
 import { toast } from "sonner";
 import { Download, Receipt } from "lucide-react";
 
+import RobotoRegular from "@/assets/fonts/Roboto-Regular.ttf";
+import RobotoBold from "@/assets/fonts/Roboto-Bold.ttf";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,8 +16,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency, formatDateTime, formatTime } from "@/lib/utils";
 import type { Invoice } from "@/types";
 
+Font.register({
+  family: "Roboto",
+  fonts: [
+    { src: RobotoRegular, fontWeight: "normal" },
+    { src: RobotoBold, fontWeight: "bold" },
+  ],
+});
+
 const pdfStyles = StyleSheet.create({
-  page: { padding: 36, fontSize: 12, color: "#0f172a" },
+  page: { padding: 36, fontSize: 12, color: "#0f172a", fontFamily: "Roboto" },
   header: { marginBottom: 24 },
   clinicName: { fontSize: 18, fontWeight: "bold" },
   subtitle: { color: "#64748b", marginTop: 4 },
