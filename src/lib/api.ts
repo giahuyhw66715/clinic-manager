@@ -552,7 +552,9 @@ export async function getPatientAllergies(patientId: string): Promise<PatientAll
 export async function getDrugInteractions(): Promise<DrugInteraction[]> {
   const { data, error } = await supabase
     .from("drug_interactions")
-    .select("*,medication_a:medications(id,name),medication_b:medications(id,name)");
+    .select(
+      "*,medication_a:medications!drug_interactions_medication_a_id_fkey(id,name),medication_b:medications!drug_interactions_medication_b_id_fkey(id,name)",
+    );
   if (error) getErrorMessage(error);
   return (data ?? []) as DrugInteraction[];
 }

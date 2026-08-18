@@ -30,6 +30,12 @@ interface PrescriptionFormProps {
   onSuccess?: () => void;
 }
 
+const severityLabel: Record<string, string> = {
+  severe: "nặng",
+  moderate: "trung bình",
+  mild: "nhẹ",
+};
+
 export function PrescriptionForm({
   patientId,
   doctorId,
@@ -108,7 +114,7 @@ export function PrescriptionForm({
           const a = medications.find((m) => m.id === pair.medication_a_id)?.name;
           const b = medications.find((m) => m.id === pair.medication_b_id)?.name;
           result.push(
-            `${a} + ${b} — có thể tương tác thuốc (${pair.severity}). ${pair.description ?? ""}`.trim(),
+            `${a} + ${b} — tương tác mức độ ${severityLabel[pair.severity] ?? pair.severity}. ${pair.description ?? ""}`.trim(),
           );
         }
       }

@@ -114,16 +114,16 @@ insert into public.drug_interactions (medication_a_id, medication_b_id, severity
 values
   ((select id from public.medications where name = 'Aspirin 81mg'),
    (select id from public.medications where name = 'Warfarin 5mg'),
-   'severe', 'Significantly increased risk of bleeding'),
+   'severe', 'Tăng đáng kể nguy cơ chảy máu khi dùng chung'),
   ((select id from public.medications where name = 'Ibuprofen 400mg'),
    (select id from public.medications where name = 'Warfarin 5mg'),
-   'severe', 'Increased bleeding risk; avoid combination'),
+   'severe', 'Tăng nguy cơ chảy máu; tránh phối hợp'),
   ((select id from public.medications where name = 'Amoxicillin 500mg'),
    (select id from public.medications where name = 'Warfarin 5mg'),
-   'moderate', 'May enhance the anticoagulant effect'),
+   'moderate', 'Có thể làm tăng tác dụng chống đông máu'),
   ((select id from public.medications where name = 'Aspirin 81mg'),
    (select id from public.medications where name = 'Ibuprofen 400mg'),
-   'mild', 'Reduced cardioprotective effect of aspirin');
+   'mild', 'Giảm tác dụng bảo vệ tim mạch của aspirin');
 
 -- ----------------------------------------------------------------------------
 -- Patient allergies
