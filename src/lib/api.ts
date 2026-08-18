@@ -346,7 +346,7 @@ export async function getTodayAppointmentsForCheckIn(): Promise<Appointment[]> {
     .from("appointments")
     .select(appointmentSelect)
     .eq("appointment_date", today)
-    .in("status", ["pending", "confirmed", "checked-in", "in-progress"])
+    .in("status", ["pending", "confirmed", "checked-in", "in-progress", "completed"])
     .order("time_slot");
   if (error) getErrorMessage(error);
   return (data ?? []) as unknown as Appointment[];

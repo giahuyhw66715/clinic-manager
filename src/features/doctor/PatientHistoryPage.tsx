@@ -6,7 +6,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ExpandableText } from "@/components/shared/ExpandableText";
@@ -16,7 +15,7 @@ import {
   getPatientPrescriptions,
 } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, toDateKey } from "@/lib/utils";
 import type { Profile } from "@/types";
 
 export function PatientHistoryPage() {
@@ -53,6 +52,17 @@ export function PatientHistoryPage() {
     enabled: !!patientId,
   });
 
+  const medsForRecord = (record: (typeof records)[number]) => {
+    let matching = prescriptions.filter((p) => p.appointment_id === record.appointment_id);
+    if (record.appointment_id === null) {
+      const recordDay = toDateKey(new Date(record.created_at));
+      matching = prescriptions.filter(
+        (p) => p.appointment_id === null && toDateKey(new Date(p.created_at)) === recordDay,
+      );
+    }
+    return matching.flatMap((p) => p.items);
+  };
+
   return (
     <div className="space-y-6">
       <Button variant="ghost" size="sm" asChild className="-ml-2">
@@ -83,101 +93,86 @@ export function PatientHistoryPage() {
         </Alert>
       )}
 
-      <Tabs defaultValue="records">
-        <TabsList>
-          <TabsTrigger value="records">Hồ sơ khám bệnh</TabsTrigger>
-          <TabsTrigger value="prescriptions">Đơn thuốc</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="records">
-          {records.length === 0 ? (
-            <EmptyState title="Không có hồ sơ khám" description="Chưa có hồ sơ khám cho bệnh nhân này." />
-          ) : (
-            <div className="space-y-3">
-              {records.map((record) => (
-                <Card key={record.id}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <ClipboardList className="h-4 w-4 text-primary" />
-                        {record.diagnosis ?? "Buổi khám"}
-                      </CardTitle>
-                      <Badge variant="secondary">
-                        {record.doctor?.profile?.full_name ?? "—"}
-                      </Badge>
+      {records.length === 0 ? (
+        <EmptyState title="Không có hồ sơ khám" description="Chưa có hồ sơ khám cho bệnh nhân này." />
+      ) : (
+        <div className="space-y-3">
+          {records.map((record) => {
+            const meds = medsForRecord(record);
+            return (
+              <Card key={record.id}>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <ClipboardList className="h-4 w-4 text-primary" />
+                      Hồ sơ khám
+                    </CardTitle>
+                    <Badge variant="secondary">
+                      {record.doctor?.profile?.full_name ?? "—"}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDateTime(record.created_at)}
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <dl className="space-y-2">
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Chẩn đoán</dt>
+                      <dd>
+                        <ExpandableText text={record.diagnosis} emptyText="Không có chẩn đoán" />
+                      </dd>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDateTime(record.created_at)}
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-2 text-sm">
-                    <dl className="space-y-2">
-                      {record.symptoms && (
-                        <div>
-                          <dt className="text-xs text-muted-foreground">Triệu chứng</dt>
-                          <dd>
-                            <ExpandableText text={record.symptoms} emptyText="Không có triệu chứng" />
-                          </dd>
-                        </div>
-                      )}
-                      {record.treatment_plan && (
-                        <div>
-                          <dt className="text-xs text-muted-foreground">Kế hoạch điều trị</dt>
-                          <dd>
-                            <ExpandableText
-                              text={record.treatment_plan}
-                              emptyText="Không có kế hoạch điều trị"
-                            />
-                          </dd>
-                        </div>
-                      )}
-                      {record.notes && (
-                        <div>
-                          <dt className="text-xs text-muted-foreground">Ghi chú</dt>
-                          <dd>
-                            <ExpandableText text={record.notes} emptyText="Không có ghi chú" />
-                          </dd>
-                        </div>
-                      )}
-                    </dl>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="prescriptions">
-          {prescriptions.length === 0 ? (
-            <EmptyState title="Không có đơn thuốc" description="Chưa có đơn thuốc cho bệnh nhân này." />
-          ) : (
-            <div className="space-y-3">
-              {prescriptions.map((prescription) => (
-                <Card key={prescription.id}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base">
-                        {formatDateTime(prescription.created_at)}
-                      </CardTitle>
-                      <Badge variant="secondary">{prescription.status}</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-1 text-sm">
-                      {prescription.items.map((item) => (
-                        <li key={item.id}>
-                          {item.medication?.name} × {item.quantity}
-                          {item.dosage ? ` · ${item.dosage}` : ""}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+                    {record.symptoms && (
+                      <div>
+                        <dt className="text-xs text-muted-foreground">Triệu chứng</dt>
+                        <dd>
+                          <ExpandableText text={record.symptoms} emptyText="Không có triệu chứng" />
+                        </dd>
+                      </div>
+                    )}
+                    {record.treatment_plan && (
+                      <div>
+                        <dt className="text-xs text-muted-foreground">Kế hoạch điều trị</dt>
+                        <dd>
+                          <ExpandableText
+                            text={record.treatment_plan}
+                            emptyText="Không có kế hoạch điều trị"
+                          />
+                        </dd>
+                      </div>
+                    )}
+                    {record.notes && (
+                      <div>
+                        <dt className="text-xs text-muted-foreground">Ghi chú</dt>
+                        <dd>
+                          <ExpandableText text={record.notes} emptyText="Không có ghi chú" />
+                        </dd>
+                      </div>
+                    )}
+                    {meds.length > 0 && (
+                      <div className="pt-1">
+                        <dt className="text-xs text-muted-foreground">Thuốc đã cho</dt>
+                        <dd>
+                          <ul className="space-y-0.5">
+                            {meds.map((item) => (
+                              <li key={item.id}>
+                                {item.medication?.name ?? "Thuốc"} × {item.quantity}
+                                {item.dosage ? ` · ${item.dosage}` : ""}
+                                {item.instructions ? ` · ${item.instructions}` : ""}
+                              </li>
+                            ))}
+                          </ul>
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
