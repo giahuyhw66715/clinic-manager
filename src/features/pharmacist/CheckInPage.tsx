@@ -94,7 +94,7 @@ export function CheckInPage() {
                       <Button
                         size="sm"
                         onClick={() => checkInMutation.mutate(appointment.id)}
-                        disabled={checkInMutation.isPending}
+                        disabled={checkInMutation.isPending && checkInMutation.variables === appointment.id}
                       >
                         <UserCheck className="h-4 w-4" /> Check-in
                       </Button>
@@ -114,15 +114,23 @@ export function CheckInPage() {
                 {checkedIn.map((appointment) => (
                   <Card key={appointment.id}>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-base">
-                        {appointment.patient?.full_name ?? "Bệnh nhân"}
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        {formatTime(appointment.time_slot)}
-                      </p>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <CardTitle className="text-base">
+                            {appointment.patient?.full_name ?? "Bệnh nhân"}
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            {appointment.doctor?.profile?.full_name ?? "—"} ·{" "}
+                            {formatTime(appointment.time_slot)}
+                          </p>
+                        </div>
+                        <AppointmentStatusBadge status={appointment.status} />
+                      </div>
                     </CardHeader>
                     <CardContent>
-                      <AppointmentStatusBadge status={appointment.status} />
+                      <span className="text-xs text-muted-foreground">
+                        {appointment.patient?.phone ?? "—"}
+                      </span>
                     </CardContent>
                   </Card>
                 ))}

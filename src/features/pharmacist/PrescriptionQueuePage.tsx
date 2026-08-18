@@ -177,7 +177,7 @@ export function PrescriptionQueuePage() {
                       onClick={() =>
                         statusMutation.mutate({ id: prescription.id, status: "preparing" })
                       }
-                      disabled={statusMutation.isPending}
+                      disabled={statusMutation.isPending && statusMutation.variables?.id === prescription.id}
                     >
                       <PackageCheck className="h-4 w-4" /> Bắt đầu chuẩn bị
                     </Button>
@@ -188,7 +188,7 @@ export function PrescriptionQueuePage() {
                       onClick={() =>
                         statusMutation.mutate({ id: prescription.id, status: "ready" })
                       }
-                      disabled={statusMutation.isPending}
+                      disabled={statusMutation.isPending && statusMutation.variables?.id === prescription.id}
                     >
                       <CheckCheck className="h-4 w-4" /> Đánh dấu sẵn sàng
                     </Button>
@@ -199,7 +199,7 @@ export function PrescriptionQueuePage() {
                       onClick={() =>
                         statusMutation.mutate({ id: prescription.id, status: "delivered" })
                       }
-                      disabled={statusMutation.isPending}
+                      disabled={statusMutation.isPending && statusMutation.variables?.id === prescription.id}
                     >
                       <Send className="h-4 w-4" /> Đánh dấu đã bàn giao
                     </Button>

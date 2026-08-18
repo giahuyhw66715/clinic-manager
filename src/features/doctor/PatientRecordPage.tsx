@@ -47,9 +47,9 @@ import { cn, formatCurrency, formatDateTime, formatTime } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
 const soapSchema = z.object({
-  symptoms: z.string().max(300, "Triệu chứng không được quá 300 ký tự").optional(),
+  symptoms: z.string().min(1, "Vui lòng nhập triệu chứng").max(300, "Triệu chứng không được quá 300 ký tự"),
   diagnosis: z.string().min(1, "Vui lòng nhập chẩn đoán").max(100, "Chẩn đoán không được quá 100 ký tự"),
-  treatment_plan: z.string().max(300, "Kế hoạch điều trị không được quá 300 ký tự").optional(),
+  treatment_plan: z.string().min(1, "Vui lòng nhập kế hoạch điều trị").max(300, "Kế hoạch điều trị không được quá 300 ký tự"),
   notes: z.string().max(300, "Ghi chú không được quá 300 ký tự").optional(),
 });
 
@@ -101,6 +101,8 @@ export function PatientRecordPage() {
     defaultValues: { symptoms: "", diagnosis: "", treatment_plan: "", notes: "" },
   });
   const diagnosis = form.watch("diagnosis");
+  const symptoms = form.watch("symptoms");
+  const treatmentPlan = form.watch("treatment_plan");
 
   const saveSoapMutation = useMutation({
     mutationFn: async (values: SoapValues) => {
@@ -383,7 +385,7 @@ export function PatientRecordPage() {
                           name="symptoms"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Triệu chứng (S)</FormLabel>
+                              <FormLabel>Triệu chứng (S) *</FormLabel>
                               <FormControl>
                                 <Textarea rows={2} maxLength={300} placeholder="Triệu chứng chủ quan do bệnh nhân mô tả" {...field} />
                               </FormControl>
@@ -409,7 +411,7 @@ export function PatientRecordPage() {
                           name="treatment_plan"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Kế hoạch điều trị (P)</FormLabel>
+                              <FormLabel>Kế hoạch điều trị (P) *</FormLabel>
                               <FormControl>
                                 <Textarea rows={2} maxLength={300} placeholder="Kế hoạch, tái khám, lời khuyên..." {...field} />
                               </FormControl>
@@ -473,7 +475,7 @@ export function PatientRecordPage() {
                           </AlertDialog>
                           <Button
                             type="button"
-                            disabled={!diagnosis?.trim()}
+                            disabled={!diagnosis?.trim() || !symptoms?.trim() || !treatmentPlan?.trim()}
                             onClick={() => setStep("prescription")}
                           >
                             Tiếp tục kê đơn <ArrowRight className="h-4 w-4" />

@@ -797,3 +797,42 @@ select cron.schedule(
   '0 17 * * *',
   $$ select public.mark_no_show_stale_appointments(); $$
 );
+
+-- ============================================================================
+-- Same-day no-show automation (runs every minute).
+-- Marks today's appointments as no-show when:
+--   - 2 hours have passed since the appointment time and the patient has not
+--     checked in (pending/confirmed), or
+--   - end of day (23:00 Vietnam time) and the patient was never examined.
+-- ============================================================================
+
+create or replace function public.mark_no_show_appointments()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_now timestamp := now() at time zone 'Asia/Ho_Chi_Minh';
+  v_today date := (now() at time zone 'Asia/Ho_Chi_Minh')::date;
+begin
+  update public.appointments
+    set status = 'no-show'
+    where appointment_date = v_today
+      and status in ('pending', 'confirmed', 'checked-in')
+      and (
+        (status in ('pending', 'confirmed')
+         and v_now >= ((appointment_date || ' ' || time_slot)::timestamp + interval '2 hours'))
+        or v_now >= (v_today || ' 23:00:00')::timestamp
+      );
+end;
+$$;
+
+select cron.unschedule('clinic-manager-mark-no-show')
+where exists (select 1 from cron.job where jobname = 'clinic-manager-mark-no-show');
+
+select cron.schedule(
+  'clinic-manager-mark-no-show',
+  '*/1 * * * *',
+  $$ select public.mark_no_show_appointments(); $$
+);

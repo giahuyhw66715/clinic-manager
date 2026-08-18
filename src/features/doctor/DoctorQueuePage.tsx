@@ -24,7 +24,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { formatTime } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function DoctorQueuePage() {
   const { user } = useAuth();
@@ -82,15 +82,15 @@ export function DoctorQueuePage() {
     };
   }, [doctor, queryClient]);
 
-  const statusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: "in-progress" | "no-show" }) => {
-      await updateAppointmentStatus(id, status);
+  const navigate = useNavigate();
+
+  const startExamMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await updateAppointmentStatus(id, "in-progress");
     },
-    onSuccess: () => {
-      toast.success("Đã cập nhật lịch hẹn");
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: ["doctor-today-queue"] });
-      queryClient.invalidateQueries({ queryKey: ["doctor-inactive"] });
-      queryClient.invalidateQueries({ queryKey: ["doctor-completed"] });
+      navigate(`/app/doctor/appointments/${id}`);
     },
     onError: (e) => toast.error(e.message),
   });
@@ -148,41 +148,24 @@ export function DoctorQueuePage() {
                       emptyText="Không có lý do"
                       className="text-muted-foreground"
                     />
-                    <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
-                      <div className="flex flex-wrap gap-2">
-                        {(appointment.status === "confirmed" ||
-                          appointment.status === "checked-in") && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              statusMutation.mutate({ id: appointment.id, status: "in-progress" })
-                            }
-                          >
-                            Bắt đầu khám
-                          </Button>
-                        )}
-                        {(appointment.status === "pending" ||
-                          appointment.status === "confirmed" ||
-                          appointment.status === "checked-in") && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-destructive"
-                            onClick={() =>
-                              statusMutation.mutate({ id: appointment.id, status: "no-show" })
-                            }
-                            >
-                            Vắng mặt
-                          </Button>
-                        )}
-                      </div>
-                      {appointment.status !== "no-show" && appointment.status !== "cancelled" && (
-                        <Button size="sm" asChild>
-                          <Link to={`/app/doctor/appointments/${appointment.id}`}>
-                            Mở <ArrowRight className="h-4 w-4" />
-                          </Link>
+                    <div className="mt-auto flex items-center justify-end gap-2 pt-2">
+                      {appointment.status === "checked-in" ? (
+                        <Button
+                          size="sm"
+                          disabled={startExamMutation.isPending && startExamMutation.variables === appointment.id}
+                          onClick={() => startExamMutation.mutate(appointment.id)}
+                        >
+                          Bắt đầu khám
                         </Button>
+                      ) : (
+                        appointment.status !== "no-show" &&
+                          appointment.status !== "cancelled" && (
+                            <Button size="sm" asChild>
+                              <Link to={`/app/doctor/appointments/${appointment.id}`}>
+                                Mở <ArrowRight className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          )
                       )}
                     </div>
                   </CardContent>

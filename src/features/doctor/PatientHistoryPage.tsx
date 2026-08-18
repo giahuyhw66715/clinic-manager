@@ -1,47 +1,26 @@
 import { useParams, Link } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-import { ArrowLeft, ClipboardList, Plus, Stethoscope } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, ClipboardList, Stethoscope } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { PrescriptionForm } from "@/features/doctor/components/PrescriptionForm";
+import { ExpandableText } from "@/components/shared/ExpandableText";
 import {
-  createMedicalRecord,
-  getDoctorByUserId,
   getPatientAllergies,
   getPatientMedicalRecords,
   getPatientPrescriptions,
 } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/contexts/AuthContext";
 import { formatDateTime } from "@/lib/utils";
 import type { Profile } from "@/types";
 
-const recordSchema = z.object({
-  symptoms: z.string().max(300, "Triệu chứng không được quá 300 ký tự").optional(),
-  diagnosis: z.string().min(1, "Vui lòng nhập chẩn đoán").max(100, "Chẩn đoán không được quá 100 ký tự"),
-  treatment_plan: z.string().max(300, "Kế hoạch điều trị không được quá 300 ký tự").optional(),
-  notes: z.string().max(300, "Ghi chú không được quá 300 ký tự").optional(),
-});
-
-type RecordValues = z.infer<typeof recordSchema>;
-
 export function PatientHistoryPage() {
   const { patientId } = useParams<{ patientId: string }>();
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
 
   const { data: patientProfile } = useQuery({
     queryKey: ["patient-profile", patientId],
@@ -54,12 +33,6 @@ export function PatientHistoryPage() {
       return (data ?? null) as Profile | null;
     },
     enabled: !!patientId,
-  });
-
-  const { data: doctor } = useQuery({
-    queryKey: ["my-doctor", user?.id],
-    queryFn: () => getDoctorByUserId(user!.id),
-    enabled: !!user,
   });
 
   const { data: records = [] } = useQuery({
@@ -78,32 +51,6 @@ export function PatientHistoryPage() {
     queryKey: ["patient-allergies", patientId],
     queryFn: () => getPatientAllergies(patientId!),
     enabled: !!patientId,
-  });
-
-  const form = useForm<RecordValues>({
-    resolver: zodResolver(recordSchema),
-    defaultValues: { symptoms: "", diagnosis: "", treatment_plan: "", notes: "" },
-  });
-
-  const saveRecordMutation = useMutation({
-    mutationFn: async (values: RecordValues) => {
-      if (!patientId || !doctor) throw new Error("Missing context");
-      await createMedicalRecord({
-        appointment_id: null,
-        patient_id: patientId,
-        doctor_id: doctor.id,
-        symptoms: values.symptoms,
-        diagnosis: values.diagnosis,
-        treatment_plan: values.treatment_plan,
-        notes: values.notes,
-      });
-    },
-    onSuccess: () => {
-      toast.success("Đã lưu hồ sơ khám bệnh");
-      queryClient.invalidateQueries({ queryKey: ["patient-records"] });
-      form.reset();
-    },
-    onError: (e) => toast.error(e.message),
   });
 
   return (
@@ -140,7 +87,6 @@ export function PatientHistoryPage() {
         <TabsList>
           <TabsTrigger value="records">Hồ sơ khám bệnh</TabsTrigger>
           <TabsTrigger value="prescriptions">Đơn thuốc</TabsTrigger>
-          <TabsTrigger value="new">Khám mới</TabsTrigger>
         </TabsList>
 
         <TabsContent value="records">
@@ -164,11 +110,36 @@ export function PatientHistoryPage() {
                       {formatDateTime(record.created_at)}
                     </p>
                   </CardHeader>
-                  <CardContent className="space-y-1 text-sm">
-                    {record.symptoms && <p>{record.symptoms}</p>}
-                    {record.treatment_plan && (
-                      <p className="text-muted-foreground">Kế hoạch: {record.treatment_plan}</p>
-                    )}
+                  <CardContent className="space-y-2 text-sm">
+                    <dl className="space-y-2">
+                      {record.symptoms && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">Triệu chứng</dt>
+                          <dd>
+                            <ExpandableText text={record.symptoms} emptyText="Không có triệu chứng" />
+                          </dd>
+                        </div>
+                      )}
+                      {record.treatment_plan && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">Kế hoạch điều trị</dt>
+                          <dd>
+                            <ExpandableText
+                              text={record.treatment_plan}
+                              emptyText="Không có kế hoạch điều trị"
+                            />
+                          </dd>
+                        </div>
+                      )}
+                      {record.notes && (
+                        <div>
+                          <dt className="text-xs text-muted-foreground">Ghi chú</dt>
+                          <dd>
+                            <ExpandableText text={record.notes} emptyText="Không có ghi chú" />
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
                   </CardContent>
                 </Card>
               ))}
@@ -205,100 +176,6 @@ export function PatientHistoryPage() {
               ))}
             </div>
           )}
-        </TabsContent>
-
-        <TabsContent value="new" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Hồ sơ SOAP mới</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit((values) => saveRecordMutation.mutate(values))}
-                  className="space-y-4"
-                >
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="symptoms"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Triệu chứng</FormLabel>
-                          <FormControl>
-                            <Textarea rows={2} maxLength={300} placeholder="Triệu chứng chủ quan" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="diagnosis"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Chẩn đoán *</FormLabel>
-                          <FormControl>
-                            <Input maxLength={100} placeholder="VD: Tăng huyết áp" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="treatment_plan"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Kế hoạch điều trị</FormLabel>
-<FormControl>
-                            <Textarea rows={2} maxLength={300} placeholder="Kế hoạch, tái khám..." {...field} />
-                          </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="notes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Ghi chú</FormLabel>
-<FormControl>
-                            <Textarea rows={2} maxLength={300} placeholder="Ghi chú thêm" {...field} />
-                          </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" disabled={saveRecordMutation.isPending}>
-                    {saveRecordMutation.isPending ? "Đang lưu..." : "Lưu hồ sơ"}
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Plus className="h-4 w-4" /> Kê đơn thuốc
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {doctor && patientId && (
-                <PrescriptionForm
-                  patientId={patientId}
-                  doctorId={doctor.id}
-                  appointmentId={null}
-                  onSuccess={() =>
-                    queryClient.invalidateQueries({ queryKey: ["patient-prescriptions"] })
-                  }
-                />
-              )}
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
