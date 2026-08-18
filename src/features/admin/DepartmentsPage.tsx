@@ -5,7 +5,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Department } from "@/types";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { CardGridSkeleton } from "@/components/shared/Skeletons";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { ExpandableText } from "@/components/shared/ExpandableText";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import {
   createDepartment,
@@ -92,13 +93,19 @@ export function DepartmentsPage() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {departments.map((department) => (
             <Card key={department.id}>
-              <CardHeader>
-                <CardTitle className="text-base">{department.name}</CardTitle>
+              <CardHeader className="pb-2">
+                <ExpandableText
+                  text={department.name}
+                  emptyText=""
+                  className="text-base font-semibold leading-snug tracking-tight"
+                />
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  {department.description ?? "Không có mô tả"}
-                </p>
+                <ExpandableText
+                  text={department.description?.trim() ? department.description : null}
+                  emptyText="Không có mô tả"
+                  className="text-sm text-muted-foreground"
+                />
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => openEditor(department)}>
                     <Pencil className="h-3 w-3" /> Chỉnh sửa
