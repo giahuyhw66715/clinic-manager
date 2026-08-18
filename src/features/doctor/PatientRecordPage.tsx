@@ -37,13 +37,14 @@ import {
   getAppointmentById,
   getAppointmentPrescriptions,
   getDoctorByUserId,
-  getPatientMedicalRecords,
   getPatientAllergies,
+  getPatientMedicalRecords,
+  getPatientPrescriptions,
   updateAppointmentStatus,
 } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { createNotification } from "@/hooks/useNotifications";
-import { cn, formatCurrency, formatDateTime, formatTime } from "@/lib/utils";
+import { cn, formatCurrency, formatDateTime, formatTime, toDateKey } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
 const soapSchema = z.object({
@@ -94,6 +95,11 @@ export function PatientRecordPage() {
     queryKey: ["appointment-prescriptions", appointmentId],
     queryFn: () => getAppointmentPrescriptions(appointmentId!),
     enabled: !!appointmentId,
+  });
+  const { data: patientPrescriptions = [] } = useQuery({
+    queryKey: ["patient-prescriptions", appointment?.patient_id],
+    queryFn: () => getPatientPrescriptions(appointment!.patient_id),
+    enabled: !!appointment,
   });
 
   const form = useForm<SoapValues>({
@@ -205,6 +211,17 @@ export function PatientRecordPage() {
   const currentRecord = records.find((r) => r.appointment_id === appointment.id);
   const editable = appointment.status === "in-progress";
 
+  const medsForRecord = (record: (typeof records)[number]) => {
+    let matching = patientPrescriptions.filter((p) => p.appointment_id === record.appointment_id);
+    if (record.appointment_id === null) {
+      const recordDay = toDateKey(new Date(record.created_at));
+      matching = patientPrescriptions.filter(
+        (p) => p.appointment_id === null && toDateKey(new Date(p.created_at)) === recordDay,
+      );
+    }
+    return matching.flatMap((p) => p.items);
+  };
+
   return (
     <div className="space-y-6">
       <Button variant="ghost" size="sm" asChild className="-ml-2">
@@ -255,27 +272,31 @@ export function PatientRecordPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Đơn thuốc của buổi khám này</CardTitle>
+              <CardTitle className="text-base">Thông tin lịch hẹn</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
-              {prescriptions.length === 0 ? (
-                <p className="text-muted-foreground">
-                  Chưa có đơn thuốc nào. Vui lòng dùng bước kê đơn bên dưới.
-                </p>
-              ) : (
-                prescriptions.map((p) => (
-                  <div key={p.id} className="rounded-md border p-2">
-                    <Badge variant="secondary">{p.status}</Badge>
-                    <ul className="mt-1 space-y-1 text-xs">
-                      {p.items.map((item) => (
-                        <li key={item.id}>
-                          {item.medication?.name} × {item.quantity}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))
-              )}
+              <div className="flex items-center justify-between gap-3">
+                <span className="shrink-0 text-muted-foreground">Trạng thái</span>
+                <AppointmentStatusBadge status={appointment.status} />
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="shrink-0 text-muted-foreground">Khoa</span>
+                <span className="truncate text-right">
+                  {appointment.doctor?.department?.name ?? "—"}
+                </span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="shrink-0 text-muted-foreground">Bác sĩ</span>
+                <span className="truncate text-right">
+                  {appointment.doctor?.profile?.full_name ?? "—"}
+                </span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="shrink-0 text-muted-foreground">Thời gian hẹn</span>
+                <span className="text-right">
+                  {appointment.appointment_date} lúc {formatTime(appointment.time_slot)}
+                </span>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -544,7 +565,9 @@ export function PatientRecordPage() {
                 <div className="space-y-4">
                   {records
                     .filter((r) => r.appointment_id !== appointment.id)
-                    .map((record) => (
+                    .map((record) => {
+                      const meds = medsForRecord(record);
+                      return (
                       <div key={record.id} className="rounded-lg border p-4">
                         <div className="mb-2 flex items-center justify-between">
                           <Badge variant="secondary">
@@ -567,9 +590,26 @@ export function PatientRecordPage() {
                               <dd>{record.treatment_plan}</dd>
                             </div>
                           )}
+                          {meds.length > 0 && (
+                            <div className="pt-1">
+                              <dt className="text-xs text-muted-foreground">Thuốc đã cho</dt>
+                              <dd>
+                                <ul className="space-y-0.5">
+                                  {meds.map((item) => (
+                                    <li key={item.id}>
+                                      {item.medication?.name ?? "Thuốc"} × {item.quantity}
+                                      {item.dosage ? ` · ${item.dosage}` : ""}
+                                      {item.instructions ? ` · ${item.instructions}` : ""}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </dd>
+                            </div>
+                          )}
                         </dl>
                       </div>
-                    ))}
+                      );
+                    })}
                 </div>
               </CardContent>
             </Card>

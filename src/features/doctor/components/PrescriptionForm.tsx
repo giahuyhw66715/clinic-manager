@@ -138,7 +138,13 @@ export function PrescriptionForm({
       if (!l.medicationId) return true;
       const med = medications.find((m) => m.id === l.medicationId);
       const qty = Number(l.quantity);
-      return qty > 0 && !!med && qty <= med.stock_qty;
+      return (
+        qty > 0 &&
+        !!med &&
+        qty <= med.stock_qty &&
+        l.dosage.trim().length > 0 &&
+        l.instructions.trim().length > 0
+      );
     });
 
   const mutation = useMutation({
@@ -269,7 +275,7 @@ export function PrescriptionForm({
 
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Liều dùng</Label>
+                  <Label className="text-xs text-muted-foreground">Liều dùng *</Label>
                   <Input
                     placeholder="VD: 500mg 3 lần/ngày"
                     value={line.dosage}
@@ -278,7 +284,7 @@ export function PrescriptionForm({
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Số lượng</Label>
+                  <Label className="text-xs text-muted-foreground">Số lượng *</Label>
                   <Input
                     type="number"
                     min={1}
@@ -288,9 +294,9 @@ export function PrescriptionForm({
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Hướng dẫn</Label>
+                  <Label className="text-xs text-muted-foreground">Thời điểm dùng *</Label>
                   <Input
-                    placeholder="VD: uống sau bữa ăn"
+                    placeholder="VD: uống sau ăn sáng"
                     value={line.instructions}
                     onChange={(e) => updateLine(index, { instructions: e.target.value })}
                     maxLength={100}
