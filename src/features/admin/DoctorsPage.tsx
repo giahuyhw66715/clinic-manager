@@ -131,11 +131,13 @@ export function DoctorsPage() {
 
   const saveDoctorMutation = useMutation({
     mutationFn: async () => {
+      const fee = Number(form.consultation_fee);
+      if (Number.isNaN(fee) || fee < 0) throw new Error("Phí khám không được nhỏ hơn 0");
       const payload = {
         user_id: form.user_id,
         department_id: form.department_id,
         specialty: form.specialty,
-        consultation_fee: Number(form.consultation_fee) || 0,
+        consultation_fee: fee || 0,
         bio: form.bio || undefined,
       };
       if (editing) {
@@ -214,6 +216,12 @@ export function DoctorsPage() {
     },
     onError: (e) => toast.error(e.message),
   });
+
+  const fee = Number(form.consultation_fee);
+  const feeError =
+    form.consultation_fee.trim() !== "" && (Number.isNaN(fee) || fee < 0)
+      ? "Phí khám không được nhỏ hơn 0"
+      : "";
 
   return (
     <div className="space-y-6">
@@ -355,7 +363,10 @@ export function DoctorsPage() {
                   min={0}
                   value={form.consultation_fee}
                   onChange={(e) => setForm((f) => ({ ...f, consultation_fee: e.target.value }))}
+                  aria-invalid={!!feeError}
+                  className={feeError ? "border-destructive" : undefined}
                 />
+                {feeError && <p className="text-xs text-destructive">{feeError}</p>}
               </div>
               {/* spacer */}
             </div>
@@ -376,6 +387,7 @@ export function DoctorsPage() {
                 (!editing && !form.user_id) ||
                 !form.department_id ||
                 !form.specialty.trim() ||
+                !!feeError ||
                 saveDoctorMutation.isPending
               }
             >
