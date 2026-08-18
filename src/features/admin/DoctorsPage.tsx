@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CalendarDays, Pencil, Plus, Stethoscope, Trash2 } from "lucide-react";
@@ -73,6 +73,7 @@ export function DoctorsPage() {
   const [schedulesFor, setSchedulesFor] = useState<Doctor | null>(null);
   const [scheduleDrafts, setScheduleDrafts] = useState<Record<number, { id?: string; start: string; end: string; slot: string }>>({});
   const [offDay, setOffDay] = useState<string>("");
+  const [offDays, setOffDays] = useState<Set<number>>(new Set());
 
   const { data: doctors = [], isLoading } = useQuery({ queryKey: ["doctors"], queryFn: getDoctors });
   const { data: departments = [] } = useQuery({ queryKey: ["departments"], queryFn: getDepartments });
@@ -82,7 +83,7 @@ export function DoctorsPage() {
     (p) => p.role === "doctor" && !doctors.some((d) => d.user_id === p.id),
   );
 
-  const { data: doctorSchedules = [] } = useQuery({
+  const { data: doctorSchedules = [], isLoading: schedulesLoading } = useQuery({
     queryKey: ["doctor-schedules", schedulesFor?.id],
     queryFn: () => getDoctorSchedules(schedulesFor!.id),
     enabled: !!schedulesFor,
@@ -113,9 +114,15 @@ export function DoctorsPage() {
 
   function openSchedules(doctor: Doctor) {
     setSchedulesFor(doctor);
+  }
+
+  useEffect(() => {
+    if (!schedulesFor) return;
     setScheduleDrafts({});
     setOffDay("");
-  }
+    const scheduled = new Set(doctorSchedules.map((s) => s.day_of_week));
+    setOffDays(new Set(DAYS.filter((day) => !scheduled.has(day))));
+  }, [schedulesFor, doctorSchedules]);
 
   function buildDraft(day: number) {
     const existing = doctorSchedules.find((s) => s.day_of_week === day);
@@ -128,6 +135,15 @@ export function DoctorsPage() {
       }
     );
   }
+
+  function isInvalidSlot(slot: string) {
+    return slot.trim() !== "" && (Number.isNaN(Number(slot)) || Number(slot) < 10);
+  }
+
+  const hasSlotError = DAYS.some((day) => {
+    const draft = scheduleDrafts[day];
+    return draft != null && isInvalidSlot(draft.slot);
+  });
 
   const saveDoctorMutation = useMutation({
     mutationFn: async () => {
@@ -169,6 +185,11 @@ export function DoctorsPage() {
     mutationFn: async () => {
       if (!schedulesFor) return;
       for (const day of DAYS) {
+        if (offDays.has(day)) {
+          const existing = doctorSchedules.find((s) => s.day_of_week === day);
+          if (existing) await deleteDoctorSchedule(existing.id);
+          continue;
+        }
         const draft = scheduleDrafts[day];
         if (!draft) continue;
         if (!draft.end || !draft.start) {
@@ -190,6 +211,21 @@ export function DoctorsPage() {
       queryClient.invalidateQueries({ queryKey: ["doctor-schedules"] });
       queryClient.invalidateQueries({ queryKey: ["doctor-off-days"] });
       setScheduleDrafts({});
+      setOffDay("");
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const clearDayMutation = useMutation({
+    mutationFn: async (day: number) => {
+      if (!schedulesFor) return;
+      const existing = doctorSchedules.find((s) => s.day_of_week === day);
+      if (existing) await deleteDoctorSchedule(existing.id);
+      setScheduleDrafts((d) => ({ ...d, [day]: { start: "", end: "", slot: "30" } }));
+      setOffDays((prev) => new Set(prev).add(day));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["doctor-schedules"] });
     },
     onError: (e) => toast.error(e.message),
   });
@@ -200,7 +236,6 @@ export function DoctorsPage() {
       await createDoctorOffDay({ doctor_id: schedulesFor.id, off_date: offDay });
     },
     onSuccess: () => {
-      toast.success("Đã thêm ngày nghỉ");
       setOffDay("");
       queryClient.invalidateQueries({ queryKey: ["doctor-off-days"] });
     },
@@ -406,72 +441,117 @@ export function DoctorsPage() {
               {schedulesFor?.profile?.full_name ?? "Bác sĩ"} — Lịch làm việc tuần
             </DialogTitle>
             <DialogDescription>
-              Thiết lập các suất khám lặp lại theo ngày trong tuần. Để trống một dòng để tắt ngày đó.
+              Thiết lập các suất khám lặp lại theo ngày trong tuần. Dùng nút "Nghỉ" để tắt cả ngày.
             </DialogDescription>
           </DialogHeader>
 
+          {schedulesLoading ? (
+            <p className="py-4 text-sm text-muted-foreground">Đang tải lịch làm việc...</p>
+          ) : (
           <div className="space-y-2">
             {DAYS.map((day) => {
               const draft = buildDraft(day);
+              const isOff = offDays.has(day);
               return (
-                <div key={day} className="flex items-end gap-2">
+                <div key={day} className="flex items-center gap-2">
                   <div className="w-24 shrink-0 py-2 text-sm font-medium">
                     {dayOfWeekLabel(day)}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Bắt đầu</Label>
-                      <Input
-                        type="time"
-                        className="h-8 w-28"
-                        value={draft.start}
-                        onChange={(e) =>
+                  {isOff ? (
+                    <div className="flex flex-1 items-center justify-between rounded-md border border-dashed px-3 py-2">
+                      <span className="text-sm text-muted-foreground">Nghỉ cả ngày</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setOffDays((prev) => {
+                            const next = new Set(prev);
+                            next.delete(day);
+                            return next;
+                          });
                           setScheduleDrafts((d) => ({
                             ...d,
-                            [day]: { ...draft, start: e.target.value },
-                          }))
-                        }
-                      />
+                            [day]: { start: "08:00", end: "17:00", slot: "30" },
+                          }));
+                        }}
+                      >
+                        Làm lại
+                      </Button>
                     </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Kết thúc</Label>
-                      <Input
-                        type="time"
-                        className="h-8 w-28"
-                        value={draft.end}
-                        onChange={(e) =>
-                          setScheduleDrafts((d) => ({
-                            ...d,
-                            [day]: { ...draft, end: e.target.value },
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs text-muted-foreground">Suất khám</Label>
-                      <Input
-                        type="number"
-                        className="h-8 w-20"
-                        min={10}
-                        value={draft.slot}
-                        onChange={(e) =>
-                          setScheduleDrafts((d) => ({
-                            ...d,
-                            [day]: { ...draft, slot: e.target.value },
-                          }))
-                        }
-                      />
-                    </div>
-                  </div>
-                  {draft.id && (
-                    <Badge variant="secondary" className="mb-1.5">
-                      đã lưu
-                    </Badge>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Bắt đầu</Label>
+                          <Input
+                            type="time"
+                            className="h-8 w-28"
+                            value={draft.start}
+                            onChange={(e) =>
+                              setScheduleDrafts((d) => ({
+                                ...d,
+                                [day]: { ...draft, start: e.target.value },
+                              }))
+                            }
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Kết thúc</Label>
+                          <Input
+                            type="time"
+                            className="h-8 w-28"
+                            value={draft.end}
+                            onChange={(e) =>
+                              setScheduleDrafts((d) => ({
+                                ...d,
+                                [day]: { ...draft, end: e.target.value },
+                              }))
+                            }
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Suất khám</Label>
+                          <Input
+                            type="number"
+                            className="h-8 w-20"
+                            min={10}
+                            value={draft.slot}
+                            onChange={(e) =>
+                              setScheduleDrafts((d) => ({
+                                ...d,
+                                [day]: { ...draft, slot: e.target.value },
+                              }))
+                            }
+                            aria-invalid={isInvalidSlot(draft.slot)}
+                          />
+                          {isInvalidSlot(draft.slot) && (
+                            <p className="text-[10px] text-destructive">Tối thiểu 10 phút</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {draft.id && (
+                          <Badge variant="secondary" className="mb-1.5">
+                            đã lưu
+                          </Badge>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive"
+                          disabled={clearDayMutation.isPending}
+                          onClick={() => clearDayMutation.mutate(day)}
+                        >
+                          Nghỉ
+                        </Button>
+                      </div>
+                    </>
                   )}
                 </div>
               );
             })}
           </div>
+          )}
 
           <Separator />
           <div>
@@ -511,7 +591,7 @@ export function DoctorsPage() {
           <DialogFooter>
             <Button
               onClick={() => saveScheduleMutation.mutate()}
-              disabled={saveScheduleMutation.isPending}
+              disabled={saveScheduleMutation.isPending || hasSlotError}
             >
               {saveScheduleMutation.isPending ? "Đang lưu..." : "Lưu lịch làm việc"}
             </Button>
