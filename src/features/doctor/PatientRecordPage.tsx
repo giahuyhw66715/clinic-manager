@@ -203,6 +203,7 @@ export function PatientRecordPage() {
     appointment.status,
   );
   const currentRecord = records.find((r) => r.appointment_id === appointment.id);
+  const editable = appointment.status === "in-progress";
 
   return (
     <div className="space-y-6">
@@ -374,7 +375,9 @@ export function PatientRecordPage() {
                       <ClipboardList className="h-4 w-4" /> Ghi chú SOAP
                     </CardTitle>
                     <CardDescription>
-                      Điền thông tin khám, sau đó tiếp tục kê đơn thuốc.
+                      {editable
+                        ? "Điền thông tin khám, sau đó tiếp tục kê đơn thuốc."
+                        : "Buổi khám chưa bắt đầu. Hồ sơ chỉ xem, không chỉnh sửa được."}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -387,7 +390,7 @@ export function PatientRecordPage() {
                             <FormItem>
                               <FormLabel>Triệu chứng (S) *</FormLabel>
                               <FormControl>
-                                <Textarea rows={2} maxLength={300} placeholder="Triệu chứng chủ quan do bệnh nhân mô tả" {...field} />
+                                <Textarea rows={2} maxLength={300} placeholder="Triệu chứng chủ quan do bệnh nhân mô tả" disabled={!editable} {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -400,7 +403,7 @@ export function PatientRecordPage() {
                             <FormItem>
                               <FormLabel>Chẩn đoán (A) *</FormLabel>
                               <FormControl>
-                                <Input maxLength={100} placeholder="VD: Viêm phế quản cấp" {...field} />
+                                <Input maxLength={100} placeholder="VD: Viêm phế quản cấp" disabled={!editable} {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -413,7 +416,7 @@ export function PatientRecordPage() {
                             <FormItem>
                               <FormLabel>Kế hoạch điều trị (P) *</FormLabel>
                               <FormControl>
-                                <Textarea rows={2} maxLength={300} placeholder="Kế hoạch, tái khám, lời khuyên..." {...field} />
+                                <Textarea rows={2} maxLength={300} placeholder="Kế hoạch, tái khám, lời khuyên..." disabled={!editable} {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -426,7 +429,7 @@ export function PatientRecordPage() {
                             <FormItem>
                               <FormLabel>Ghi chú</FormLabel>
                               <FormControl>
-                                <Textarea rows={2} maxLength={300} placeholder="Ghi chú lâm sàng bổ sung" {...field} />
+                                <Textarea rows={2} maxLength={300} placeholder="Ghi chú lâm sàng bổ sung" disabled={!editable} {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -439,7 +442,7 @@ export function PatientRecordPage() {
                                 type="button"
                                 variant="outline"
                                 className="text-destructive"
-                                disabled={!canCancel}
+                                disabled={!canCancel || !editable}
                               >
                                 <XCircle className="h-4 w-4" /> Hủy buổi khám
                               </Button>
@@ -475,7 +478,12 @@ export function PatientRecordPage() {
                           </AlertDialog>
                           <Button
                             type="button"
-                            disabled={!diagnosis?.trim() || !symptoms?.trim() || !treatmentPlan?.trim()}
+                            disabled={
+                              !editable ||
+                              !diagnosis?.trim() ||
+                              !symptoms?.trim() ||
+                              !treatmentPlan?.trim()
+                            }
                             onClick={() => setStep("prescription")}
                           >
                             Tiếp tục kê đơn <ArrowRight className="h-4 w-4" />
@@ -487,7 +495,7 @@ export function PatientRecordPage() {
                 </Card>
               </div>
 
-              {step === "prescription" && (
+              {editable && step === "prescription" && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-base">

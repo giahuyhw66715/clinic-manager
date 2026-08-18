@@ -303,7 +303,7 @@ export async function getTodayDoctorAppointments(doctorId: string): Promise<Appo
     .select(appointmentSelect)
     .eq("doctor_id", doctorId)
     .eq("appointment_date", today)
-    .in("status", ["confirmed", "checked-in", "in-progress", "pending", "no-show"])
+    .in("status", ["confirmed", "checked-in", "in-progress", "pending"])
     .order("time_slot", { ascending: true });
   if (error) getErrorMessage(error);
   return (data ?? []) as unknown as Appointment[];
