@@ -205,9 +205,7 @@ export function PatientRecordPage() {
   const patient = appointment.patient;
   const hasPrescription = prescriptions.length > 0;
   const alreadyCompleted = appointment.status === "completed";
-  const canCancel = ["pending", "confirmed", "checked-in", "in-progress"].includes(
-    appointment.status,
-  );
+  const canCancel = ["pending", "checked-in", "in-progress"].includes(appointment.status);
   const currentRecord = records.find((r) => r.appointment_id === appointment.id);
   const editable = appointment.status === "in-progress";
 
@@ -221,6 +219,42 @@ export function PatientRecordPage() {
     }
     return matching.flatMap((p) => p.items);
   };
+
+  const cancelDialog = (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button type="button" variant="outline" className="text-destructive">
+          <XCircle className="h-4 w-4" /> Hủy buổi khám
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Hủy buổi khám này?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Thao tác này sẽ hủy lịch hẹn với {patient?.full_name ?? "bệnh nhân"}. Vui lòng
+            nhập lý do hủy.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <Textarea
+          placeholder="Lý do hủy (bắt buộc)"
+          value={cancelReason}
+          onChange={(e) => setCancelReason(e.target.value)}
+          rows={3}
+          maxLength={300}
+        />
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={cancelMutation.isPending}>Giữ buổi khám</AlertDialogCancel>
+          <AlertDialogAction
+            disabled={!cancelReason.trim() || cancelMutation.isPending}
+            onClick={() => cancelMutation.mutate()}
+            className="bg-destructive text-white hover:bg-destructive/90"
+          >
+            {cancelMutation.isPending ? "Đang hủy..." : "Hủy buổi khám"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 
   return (
     <div className="space-y-6">
@@ -249,6 +283,13 @@ export function PatientRecordPage() {
           <AlertTriangleNote allergies={allergies} />
         </Alert>
       )}
+      {appointment.cancel_reason && (
+        <Alert variant="destructive">
+          <XCircle className="h-4 w-4" />
+          <AlertTitle>Buổi khám đã bị hủy</AlertTitle>
+          <AlertDescription>{appointment.cancel_reason}</AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
         <div className="space-y-4">
@@ -263,9 +304,13 @@ export function PatientRecordPage() {
               </p>
               <p className="text-muted-foreground">{patient?.email ?? "—"}</p>
               <Separator />
-              <div className="flex justify-between gap-3">
+              <div className="flex items-start justify-between gap-3">
                 <span className="shrink-0 text-muted-foreground">Lý do</span>
-                <span className="truncate text-right">{appointment.reason || "Không có lý do"}</span>
+                <ExpandableText
+                  text={appointment.reason}
+                  emptyText="Không có mô tả"
+                  className="min-w-0 flex-1 text-right text-muted-foreground"
+                />
               </div>
             </CardContent>
           </Card>
@@ -457,46 +502,7 @@ export function PatientRecordPage() {
                           )}
                         />
                         <div className="flex justify-end gap-2">
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                className="text-destructive"
-                                disabled={!canCancel || !editable}
-                              >
-                                <XCircle className="h-4 w-4" /> Hủy buổi khám
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Hủy buổi khám này?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Thao tác này sẽ hủy lịch hẹn với {patient?.full_name ?? "bệnh nhân"}
-                                  . Vui lòng nhập lý do hủy.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <Textarea
-                                placeholder="Lý do hủy (bắt buộc)"
-                                value={cancelReason}
-                                onChange={(e) => setCancelReason(e.target.value)}
-                                rows={3}
-                                maxLength={300}
-                              />
-                              <AlertDialogFooter>
-                                <AlertDialogCancel disabled={cancelMutation.isPending}>
-                                  Giữ buổi khám
-                                </AlertDialogCancel>
-                                <AlertDialogAction
-                                  disabled={!cancelReason.trim() || cancelMutation.isPending}
-                                  onClick={() => cancelMutation.mutate()}
-                                  className="bg-destructive text-white hover:bg-destructive/90"
-                                >
-                                  {cancelMutation.isPending ? "Đang hủy..." : "Hủy buổi khám"}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                          {canCancel && cancelDialog}
                           <Button
                             type="button"
                             disabled={

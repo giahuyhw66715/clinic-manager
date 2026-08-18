@@ -459,7 +459,7 @@ export function BookAppointmentPage() {
                 </p>
               </div>
               <Separator />
-              <Label className="block">Lý do khám (tùy chọn)</Label>
+              <Label className="block">Mô tả triệu chứng (tùy chọn)</Label>
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}

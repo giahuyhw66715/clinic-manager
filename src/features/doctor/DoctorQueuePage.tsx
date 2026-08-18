@@ -145,7 +145,7 @@ export function DoctorQueuePage() {
                     )}
                     <ExpandableText
                       text={appointment.reason}
-                      emptyText="Không có lý do"
+                      emptyText="Không có mô tả"
                       className="text-muted-foreground"
                     />
                     <div className="mt-auto flex items-center justify-between gap-2 pt-2">
@@ -281,9 +281,11 @@ export function DoctorQueuePage() {
                     </div>
                   </CardHeader>
                   <CardContent className="flex flex-1 flex-col gap-3 text-sm">
-                    <p className="truncate rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-                      {appointment.cancel_reason || "Không có lý do hủy"}
-                    </p>
+                    <ExpandableText
+                      text={appointment.cancel_reason}
+                      emptyText="Không có lý do hủy"
+                      className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground"
+                    />
                     <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                       <span className="text-xs text-muted-foreground">
                         {format(

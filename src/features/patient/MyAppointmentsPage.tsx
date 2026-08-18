@@ -178,9 +178,16 @@ export function MyAppointmentsPage() {
                 </div>
                 <ExpandableText
                   text={appointment.reason}
-                  emptyText="Không có lý do"
+                  emptyText="Không có mô tả"
                   className="text-muted-foreground"
                 />
+                {appointment.status === "cancelled" && appointment.cancel_reason && (
+                  <ExpandableText
+                    text={`Lý do hủy: ${appointment.cancel_reason}`}
+                    emptyText=""
+                    className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                  />
+                )}
                 <div className="flex flex-wrap gap-2 pt-1">
                   {(appointment.status === "pending" || appointment.status === "confirmed") && (
                     <>
