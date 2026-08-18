@@ -148,25 +148,30 @@ export function DoctorQueuePage() {
                       emptyText="Không có lý do"
                       className="text-muted-foreground"
                     />
-                    <div className="mt-auto flex items-center justify-end gap-2 pt-2">
-                      {appointment.status === "checked-in" ? (
-                        <Button
-                          size="sm"
-                          disabled={startExamMutation.isPending && startExamMutation.variables === appointment.id}
-                          onClick={() => startExamMutation.mutate(appointment.id)}
-                        >
-                          Bắt đầu khám
-                        </Button>
-                      ) : (
-                        appointment.status !== "no-show" &&
-                          appointment.status !== "cancelled" && (
-                            <Button size="sm" asChild>
-                              <Link to={`/app/doctor/appointments/${appointment.id}`}>
-                                Mở <ArrowRight className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                          )
-                      )}
+                    <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(), "dd/MM/yyyy")}
+                      </span>
+                      <div className="flex items-center justify-end gap-2">
+                        {appointment.status === "checked-in" ? (
+                          <Button
+                            size="sm"
+                            disabled={startExamMutation.isPending && startExamMutation.variables === appointment.id}
+                            onClick={() => startExamMutation.mutate(appointment.id)}
+                          >
+                            Bắt đầu khám
+                          </Button>
+                        ) : (
+                          appointment.status !== "no-show" &&
+                            appointment.status !== "cancelled" && (
+                              <Button size="sm" asChild>
+                                <Link to={`/app/doctor/appointments/${appointment.id}`}>
+                                  Mở <ArrowRight className="h-4 w-4" />
+                                </Link>
+                              </Button>
+                            )
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -205,21 +210,20 @@ export function DoctorQueuePage() {
                           <CardTitle className="truncate text-base">
                             {appointment.patient?.full_name ?? "Bệnh nhân"}
                           </CardTitle>
-                          <CardDescription>
-                            {format(
-                              parseISO(appointment.appointment_date + "T00:00:00"),
-                              "dd/MM/yyyy",
-                            )}
-                            {" · "}
-                            {appointment.patient?.phone ?? "—"}
-                          </CardDescription>
+                          <CardDescription>{appointment.patient?.phone ?? "—"}</CardDescription>
                         </div>
                       </div>
                       <AppointmentStatusBadge status={appointment.status} />
                     </div>
                   </CardHeader>
                   <CardContent className="flex flex-1 flex-col gap-3 text-sm">
-                    <div className="mt-auto flex items-center justify-end pt-2">
+                    <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+                      <span className="text-xs text-muted-foreground">
+                        {format(
+                          parseISO(appointment.appointment_date + "T00:00:00"),
+                          "dd/MM/yyyy",
+                        )}
+                      </span>
                       <Button size="sm" asChild>
                         <Link to={`/app/doctor/appointments/${appointment.id}`}>
                           Xem hồ sơ <ArrowRight className="h-4 w-4" />
@@ -280,6 +284,19 @@ export function DoctorQueuePage() {
                     <p className="truncate rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
                       {appointment.cancel_reason || "Không có lý do hủy"}
                     </p>
+                    <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+                      <span className="text-xs text-muted-foreground">
+                        {format(
+                          parseISO(appointment.appointment_date + "T00:00:00"),
+                          "dd/MM/yyyy",
+                        )}
+                      </span>
+                      <Button size="sm" asChild>
+                        <Link to={`/app/doctor/appointments/${appointment.id}`}>
+                          Xem hồ sơ <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
