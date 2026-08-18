@@ -19,7 +19,7 @@ import { cn, formatCurrency } from "@/lib/utils";
 interface PrescriptionLine {
   medicationId: string;
   dosage: string;
-  quantity: number;
+  quantity: string;
   instructions: string;
 }
 
@@ -38,7 +38,7 @@ export function PrescriptionForm({
 }: PrescriptionFormProps) {
   const queryClient = useQueryClient();
   const [lines, setLines] = useState<PrescriptionLine[]>([
-    { medicationId: "", dosage: "", quantity: 1, instructions: "" },
+    { medicationId: "", dosage: "", quantity: "1", instructions: "" },
   ]);
   const [notes, setNotes] = useState("");
   const [openCombo, setOpenCombo] = useState<number | null>(null);
@@ -123,7 +123,7 @@ export function PrescriptionForm({
       if (!medication) continue;
       if (medication.stock_qty <= 0) {
         result.push(`${medication.name} đã hết hàng.`);
-      } else if (line.quantity > medication.stock_qty) {
+      } else if (Number(line.quantity) > medication.stock_qty) {
         result.push(
           `${medication.name}: yêu cầu ${line.quantity}, chỉ còn ${medication.stock_qty} trong kho.`,
         );
@@ -133,7 +133,13 @@ export function PrescriptionForm({
   }, [lines, medications]);
 
   const isValid =
-    lines.some((l) => l.medicationId) && lines.every((l) => !l.medicationId || l.quantity > 0);
+    lines.some((l) => l.medicationId) &&
+    lines.every((l) => {
+      if (!l.medicationId) return true;
+      const med = medications.find((m) => m.id === l.medicationId);
+      const qty = Number(l.quantity);
+      return qty > 0 && !!med && qty <= med.stock_qty;
+    });
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -143,7 +149,7 @@ export function PrescriptionForm({
         .map((l) => ({
           medication_id: l.medicationId,
           dosage: l.dosage || undefined,
-          quantity: l.quantity,
+          quantity: Number(l.quantity),
           instructions: l.instructions || undefined,
         }));
       await createPrescription({
@@ -163,7 +169,7 @@ export function PrescriptionForm({
       toast.success("Đã gửi đơn thuốc cho nhà thuốc");
       queryClient.invalidateQueries({ queryKey: ["prescriptions"] });
       onSuccess?.();
-      setLines([{ medicationId: "", dosage: "", quantity: 1, instructions: "" }]);
+      setLines([{ medicationId: "", dosage: "", quantity: "1", instructions: "" }]);
       setNotes("");
     },
     onError: (error) => toast.error(error.message),
@@ -210,9 +216,7 @@ export function PrescriptionForm({
                     aria-expanded={openCombo === index}
                     className="w-full justify-between"
                   >
-                    {medication
-                      ? `${medication.name} — $${medication.price}/đơn vị · tồn ${medication.stock_qty}`
-                      : "Tìm thuốc..."}
+                    {medication ? medication.name : "Tìm thuốc..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -278,10 +282,9 @@ export function PrescriptionForm({
                   <Input
                     type="number"
                     min={1}
+                    max={medication ? medication.stock_qty : undefined}
                     value={line.quantity}
-                    onChange={(e) =>
-                      updateLine(index, { quantity: Math.max(1, Number(e.target.value) || 1) })
-                    }
+                    onChange={(e) => updateLine(index, { quantity: e.target.value })}
                   />
                 </div>
                 <div>
@@ -305,7 +308,7 @@ export function PrescriptionForm({
           onClick={() =>
             setLines((prev) => [
               ...prev,
-              { medicationId: "", dosage: "", quantity: 1, instructions: "" },
+              { medicationId: "", dosage: "", quantity: "1", instructions: "" },
             ])
           }
         >
