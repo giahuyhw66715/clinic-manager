@@ -62,8 +62,12 @@ export function PrescriptionQueuePage() {
     mutationFn: async ({ id, status }: { id: string; status: PrescriptionStatus }) => {
       await updatePrescriptionStatus(id, status);
     },
-    onSuccess: () => {
-      toast.success("Đã cập nhật đơn thuốc");
+    onSuccess: (_data, variables) => {
+      toast.success(
+        variables.status === "delivered"
+          ? "Đã bàn giao & hóa đơn đã thanh toán"
+          : "Đã cập nhật đơn thuốc",
+      );
       queryClient.invalidateQueries({ queryKey: ["pharmacy-prescriptions"] });
     },
     onError: (e) => toast.error(e.message),
