@@ -23,6 +23,7 @@ import {
   getDoctorSchedules,
   getDoctorsByDepartment,
   getDepartments,
+  getUpcomingMyAppointments,
 } from "@/lib/api";
 import { createNotification } from "@/hooks/useNotifications";
 import { generateAllSlotsForDate, generateSlotsForDate } from "@/lib/availability";
@@ -80,6 +81,11 @@ export function BookAppointmentPage() {
     },
     enabled: autoAssign && doctors.length > 0,
   });
+  const { data: upcomingAppointments = [] } = useQuery({
+    queryKey: ["upcoming-my-appointments", profile?.id],
+    queryFn: () => getUpcomingMyAppointments(profile!.id),
+    enabled: !!profile,
+  });
 
   const selectedDoctor = doctors.find((d) => d.id === doctorId);
 
@@ -129,6 +135,39 @@ export function BookAppointmentPage() {
     [freeSlots, isToday],
   );
 
+  const MIN_GAP_MINUTES = 60;
+
+  const conflictingSlots = useMemo(() => {
+    const active = upcomingAppointments.filter(
+      (a) => a.status !== "cancelled" && a.status !== "no-show",
+    );
+    if (!date || active.length === 0) return new Set<string>();
+    const set = new Set<string>();
+    for (const slot of allSlots) {
+      const [h, m] = slot.split(":").map(Number);
+      const slotMs = new Date(date).setHours(h, m, 0, 0);
+      const conflicting = active.some((a) => {
+        const [ah, am] = a.time_slot.split(":").map(Number);
+        const apptMs = new Date(a.appointment_date + "T00:00:00").setHours(ah, am, 0, 0);
+        return Math.abs(apptMs - slotMs) < MIN_GAP_MINUTES * 60 * 1000;
+      });
+      if (conflicting) set.add(slot);
+    }
+    return set;
+  }, [allSlots, upcomingAppointments, date]);
+
+  const getConflictAppointment = (slot: string) => {
+    if (!date) return undefined;
+    const [h, m] = slot.split(":").map(Number);
+    const slotMs = new Date(date).setHours(h, m, 0, 0);
+    return upcomingAppointments.find((a) => {
+      if (a.status === "cancelled" || a.status === "no-show") return false;
+      const [ah, am] = a.time_slot.split(":").map(Number);
+      const apptMs = new Date(a.appointment_date + "T00:00:00").setHours(ah, am, 0, 0);
+      return Math.abs(apptMs - slotMs) < MIN_GAP_MINUTES * 60 * 1000;
+    });
+  };
+
   const isSlotBooked = (slot: string) => {
     if (!date) return false;
     if (autoAssign) {
@@ -163,6 +202,19 @@ export function BookAppointmentPage() {
   const bookMutation = useMutation({
     mutationFn: async () => {
       if (!profile) throw new Error("Chưa đăng nhập");
+      const [sh, sm] = timeSlot.split(":").map(Number);
+      const slotMs = new Date(date!).setHours(sh, sm, 0, 0);
+      const blockedByConflict = upcomingAppointments.some((a) => {
+        if (a.status === "cancelled" || a.status === "no-show") return false;
+        const [ah, am] = a.time_slot.split(":").map(Number);
+        const apptMs = new Date(a.appointment_date + "T00:00:00").setHours(ah, am, 0, 0);
+        return Math.abs(apptMs - slotMs) < MIN_GAP_MINUTES * 60 * 1000;
+      });
+      if (blockedByConflict) {
+        throw new Error(
+          "Khung giờ này cách lịch hẹn hiện có của bạn chưa đủ 1 tiếng. Vui lòng chọn giờ khác.",
+        );
+      }
       let appointmentDoctorId = doctorId;
       if (autoAssign || !appointmentDoctorId) {
         appointmentDoctorId = pickDoctor(timeSlot) ?? "";
@@ -374,6 +426,7 @@ export function BookAppointmentPage() {
                         {allSlots.map((slot) => {
                           const booked = isSlotBooked(slot);
                           const past = isToday && isPastSlot(slot);
+                          const conflict = conflictingSlots.has(slot);
                           const disabled = booked || past;
                           return (
                             <button
@@ -384,7 +437,16 @@ export function BookAppointmentPage() {
                                 timeSlot === slot && "border-primary bg-primary text-primary-foreground",
                                 disabled && "cursor-not-allowed opacity-40 hover:border-border",
                               )}
-                              onClick={() => setTimeSlot(slot)}
+                              onClick={() => {
+                                if (conflict) {
+                                  const appt = getConflictAppointment(slot);
+                                  toast.error(
+                                      `Bạn đã có lịch hẹn với bác sĩ ${appt?.doctor?.profile?.full_name ?? "khác"} lúc ${formatTime(appt?.time_slot ?? slot)}. Vui lòng chọn thời gian cách thời gian đã hẹn ít nhất 1 tiếng.`,
+                                  );
+                                  return;
+                                }
+                                setTimeSlot(slot);
+                              }}
                             >
                               {formatTime(slot)}
                             </button>
@@ -412,7 +474,7 @@ export function BookAppointmentPage() {
               ) : (
                 <Button
                   onClick={() => bookMutation.mutate()}
-                  disabled={!timeSlot || bookMutation.isPending}
+                  disabled={!timeSlot || conflictingSlots.has(timeSlot) || bookMutation.isPending}
                 >
                   {bookMutation.isPending ? "Đang đặt lịch..." : "Đặt lịch khám"}
                 </Button>
