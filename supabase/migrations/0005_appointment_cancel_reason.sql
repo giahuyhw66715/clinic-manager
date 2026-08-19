@@ -21,7 +21,7 @@ begin
   update public.appointments
     set status = 'no-show'
     where appointment_date < (now() at time zone 'Asia/Ho_Chi_Minh')::date
-      and status in ('pending', 'confirmed');
+      and status in ('pending');
 
   -- Came but the visit was never completed -> cancelled
   update public.appointments

@@ -2,7 +2,6 @@ export type UserRole = "patient" | "doctor" | "pharmacist" | "admin";
 
 export type AppointmentStatus =
   | "pending"
-  | "confirmed"
   | "checked-in"
   | "in-progress"
   | "completed"

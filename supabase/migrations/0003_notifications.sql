@@ -1,7 +1,7 @@
 -- ============================================================================
 -- ClinicManager - Daily appointment reminders (in-app notifications)
 -- Schedules a pg_cron job that runs daily at 00:00 Vietnam time (17:00 UTC) and
--- notifies patients who have a confirmed/pending appointment tomorrow.
+-- notifies patients who have a pending appointment tomorrow.
 -- ============================================================================
 
 create extension if not exists pg_cron with schema pg_catalog;
@@ -25,7 +25,7 @@ begin
   join public.doctors d on d.id = a.doctor_id
   left join public.profiles p on p.id = d.user_id
   where a.appointment_date = (now() at time zone 'Asia/Ho_Chi_Minh')::date + 1
-    and a.status in ('pending', 'confirmed');
+    and a.status in ('pending');
 end;
 $$;
 

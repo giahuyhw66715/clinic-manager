@@ -2,8 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import type { AppointmentStatus, PrescriptionStatus } from "@/types";
 
 const appointmentStatusConfig: Record<AppointmentStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info" }> = {
-  pending: { label: "Chờ xác nhận", variant: "warning" },
-  confirmed: { label: "Đã xác nhận", variant: "info" },
+  pending: { label: "Đã đặt", variant: "secondary" },
   "checked-in": { label: "Đã đến", variant: "secondary" },
   "in-progress": { label: "Đang khám", variant: "default" },
   completed: { label: "Hoàn tất", variant: "success" },

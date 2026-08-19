@@ -138,13 +138,13 @@ values ('66666666-6666-4666-8666-666666666666',
 -- ----------------------------------------------------------------------------
 insert into public.appointments (patient_id, doctor_id, appointment_date, time_slot, reason, status) values
   ('66666666-6666-4666-8666-666666666666', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-   current_date, '09:00'::time, 'Cough and fever for 3 days', 'confirmed'),
+   current_date, '09:00'::time, 'Cough and fever for 3 days', 'pending'),
   ('77777777-7777-4777-8777-777777777777', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
    current_date, '10:30'::time, 'Annual heart checkup', 'pending'),
   ('66666666-6666-4666-8666-666666666666', 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
    current_date, '14:00'::time, 'Skin rash on arms', 'pending'),
   ('77777777-7777-4777-8777-777777777777', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-   current_date + 1, '09:00'::time, 'Follow-up on blood tests', 'confirmed');
+   current_date + 1, '09:00'::time, 'Follow-up on blood tests', 'pending');
 
 -- ----------------------------------------------------------------------------
 -- Past medical record for patient1
@@ -178,6 +178,6 @@ values (null, '66666666-6666-4666-8666-666666666666', 140.00, true, now() - inte
 -- ----------------------------------------------------------------------------
 insert into public.notifications (user_id, type, title, body) values
   ('66666666-6666-4666-8666-666666666666', 'appointment', 'Appointment booked',
-   'Your appointment with Dr. Mai Nguyen is confirmed for today at 09:00.'),
+   'Your appointment with Dr. Mai Nguyen is booked for today at 09:00.'),
   ('66666666-6666-4666-8666-666666666666', 'record', 'Visit completed',
    'Your visit record was saved and an invoice was created.');

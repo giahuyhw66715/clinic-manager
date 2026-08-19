@@ -49,7 +49,7 @@ export function CheckInPage() {
     onError: (e) => toast.error(e.message),
   });
 
-  const pending = appointments.filter((a) => a.status === "pending" || a.status === "confirmed");
+  const pending = appointments.filter((a) => a.status === "pending");
   const checkedIn = appointments.filter((a) => a.status === "checked-in" || a.status === "in-progress");
 
   return (

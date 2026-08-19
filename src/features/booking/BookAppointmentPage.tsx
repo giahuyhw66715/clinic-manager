@@ -232,7 +232,7 @@ export function BookAppointmentPage() {
       await createNotification(profile.id, {
         type: "appointment",
         title: "Đặt lịch thành công",
-        body: `Lịch hẹn của bạn vào ${formatDate(date!)} lúc ${formatTime(timeSlot)} đang chờ xác nhận.`,
+        body: `Lịch hẹn của bạn vào ${formatDate(date!)} lúc ${formatTime(timeSlot)} đã được đặt.`,
       });
     },
     onSuccess: () => {

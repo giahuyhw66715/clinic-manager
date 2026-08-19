@@ -107,7 +107,7 @@ export function MyAppointmentsPage() {
   });
 
   const canCancel = (appointmentDate: string, timeSlot: string, status: string) => {
-    if (!["pending", "confirmed"].includes(status)) return false;
+    if (status !== "pending") return false;
     const appointmentTime = parseISO(`${appointmentDate}T${timeSlot}`);
     return differenceInHours(appointmentTime, new Date()) >= CANCEL_WINDOW_HOURS;
   };
@@ -189,7 +189,7 @@ export function MyAppointmentsPage() {
                   />
                 )}
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {(appointment.status === "pending" || appointment.status === "confirmed") && (
+                  {(appointment.status === "pending") && (
                     <>
                       <Button
                         variant="outline"
@@ -240,7 +240,7 @@ disabled={!canCancel(appointment.appointment_date, appointment.time_slot, appoin
           <DialogHeader>
             <DialogTitle>Đổi lịch hẹn</DialogTitle>
             <DialogDescription>
-              Chọn ngày và giờ mới. Lịch hẹn sẽ được gửi lại để xác nhận.
+              Chọn ngày và giờ mới. Lịch hẹn sẽ được đặt lại.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 md:grid-cols-2">

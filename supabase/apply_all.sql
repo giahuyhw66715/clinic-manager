@@ -10,7 +10,7 @@ create extension if not exists pgcrypto;
 -- ----------------------------------------------------------------------------
 create type public.user_role as enum ('patient', 'doctor', 'pharmacist', 'admin');
 create type public.appointment_status as enum (
-  'pending', 'confirmed', 'checked-in', 'in-progress', 'completed', 'cancelled', 'no-show'
+  'pending', 'checked-in', 'in-progress', 'completed', 'cancelled', 'no-show'
 );
 create type public.prescription_status as enum ('sent', 'preparing', 'ready', 'delivered');
 create type public.severity as enum ('mild', 'moderate', 'severe');
@@ -108,7 +108,7 @@ create table public.appointments (
 
 create unique index appointments_active_slot_key
   on public.appointments (doctor_id, appointment_date, time_slot)
-  where status in ('pending', 'confirmed', 'checked-in', 'in-progress');
+  where status in ('pending', 'checked-in', 'in-progress');
 
 create index appointments_patient_idx on public.appointments (patient_id);
 create index appointments_doctor_date_idx on public.appointments (doctor_id, appointment_date);
@@ -410,7 +410,7 @@ as $$
   from public.appointments
   where doctor_id = target_doctor_id
     and appointment_date = target_date
-    and status in ('pending', 'confirmed', 'checked-in', 'in-progress');
+    and status in ('pending', 'checked-in', 'in-progress');
 $$;
 
 revoke all on function public.get_booked_slots(uuid, date) from public;
@@ -716,13 +716,13 @@ values ('66666666-6666-4666-8666-666666666666',
 -- ----------------------------------------------------------------------------
 insert into public.appointments (patient_id, doctor_id, appointment_date, time_slot, reason, status) values
   ('66666666-6666-4666-8666-666666666666', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-   current_date, '09:00'::time, 'Cough and fever for 3 days', 'confirmed'),
+   current_date, '09:00'::time, 'Cough and fever for 3 days', 'pending'),
   ('77777777-7777-4777-8777-777777777777', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
    current_date, '10:30'::time, 'Annual heart checkup', 'pending'),
   ('66666666-6666-4666-8666-666666666666', 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
    current_date, '14:00'::time, 'Skin rash on arms', 'pending'),
   ('77777777-7777-4777-8777-777777777777', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-   current_date + 1, '09:00'::time, 'Follow-up on blood tests', 'confirmed');
+   current_date + 1, '09:00'::time, 'Follow-up on blood tests', 'pending');
 
 -- ----------------------------------------------------------------------------
 -- Past medical record for patient1
@@ -756,13 +756,13 @@ values (null, '66666666-6666-4666-8666-666666666666', 140.00, true, now() - inte
 -- ----------------------------------------------------------------------------
 insert into public.notifications (user_id, type, title, body) values
   ('66666666-6666-4666-8666-666666666666', 'appointment', 'Appointment booked',
-   'Your appointment with Dr. Mai Nguyen is confirmed for today at 09:00.'),
+   'Your appointment with Dr. Mai Nguyen is booked for today at 09:00.'),
   ('66666666-6666-4666-8666-666666666666', 'record', 'Visit completed',
    'Your visit record was saved and an invoice was created.');
 -- ============================================================================
 -- ClinicManager - Daily appointment reminders (in-app notifications)
 -- Schedules a pg_cron job that runs daily at 00:00 Vietnam time (17:00 UTC) and
--- notifies patients who have a confirmed/pending appointment tomorrow.
+-- notifies patients who have a pending appointment tomorrow.
 -- ============================================================================
 
 create extension if not exists pg_cron with schema pg_catalog;
@@ -786,7 +786,7 @@ begin
   join public.doctors d on d.id = a.doctor_id
   left join public.profiles p on p.id = d.user_id
   where a.appointment_date = (now() at time zone 'Asia/Ho_Chi_Minh')::date + 1
-    and a.status in ('pending', 'confirmed');
+    and a.status in ('pending');
 end;
 $$;
 
@@ -803,7 +803,7 @@ select cron.schedule(
 -- Schedules a pg_cron job that runs daily at 00:00 Vietnam time (17:00 UTC) and
 -- marks appointments from previous days that were never completed/cancelled as
 -- no-show. This keeps the doctor queue and patient appointment list free of
--- stale "confirmed" rows.
+-- stale "pending" rows.
 -- ============================================================================
 
 create extension if not exists pg_cron with schema pg_catalog;
@@ -822,7 +822,7 @@ begin
   update public.appointments
     set status = 'no-show'
     where appointment_date < (now() at time zone 'Asia/Ho_Chi_Minh')::date
-      and status in ('pending', 'confirmed');
+      and status in ('pending');
 
   -- Came but the visit was never completed -> cancelled
   update public.appointments
@@ -846,7 +846,7 @@ select cron.schedule(
 -- Same-day no-show automation (runs every minute).
 -- Marks today's appointments as no-show when:
 --   - 2 hours have passed since the appointment time and the patient has not
---     checked in (pending/confirmed), or
+--     checked in (pending), or
 --   - end of day (23:00 Vietnam time) and the patient was never examined.
 -- ============================================================================
 
@@ -863,9 +863,9 @@ begin
   update public.appointments
     set status = 'no-show'
     where appointment_date = v_today
-      and status in ('pending', 'confirmed', 'checked-in')
+      and status in ('pending', 'checked-in')
       and (
-        (status in ('pending', 'confirmed')
+        (status in ('pending')
          and v_now >= ((appointment_date || ' ' || time_slot)::timestamp + interval '2 hours'))
         or v_now >= (v_today || ' 23:00:00')::timestamp
       );

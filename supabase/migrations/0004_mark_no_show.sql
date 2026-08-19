@@ -3,7 +3,7 @@
 -- Schedules a pg_cron job that runs daily at 00:00 Vietnam time (17:00 UTC) and
 -- marks appointments from previous days that were never completed/cancelled as
 -- no-show. This keeps the doctor queue and patient appointment list free of
--- stale "confirmed" rows.
+-- stale "pending" rows.
 -- ============================================================================
 
 create extension if not exists pg_cron with schema pg_catalog;
@@ -19,7 +19,7 @@ begin
   update public.appointments
     set status = 'no-show'
     where appointment_date < (now() at time zone 'Asia/Ho_Chi_Minh')::date
-      and status in ('pending', 'confirmed');
+      and status in ('pending');
 end;
 $$;
 

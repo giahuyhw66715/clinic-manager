@@ -102,7 +102,7 @@ export function AdminDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             {[
-              { label: "Chờ check-in", count: todayAppointments.filter((a) => ["pending", "confirmed"].includes(a.status)).length },
+              { label: "Chờ check-in", count: todayAppointments.filter((a) => a.status === "pending").length },
               { label: "Đã check-in / Đang khám", count: todayAppointments.filter((a) => ["checked-in", "in-progress"].includes(a.status)).length },
               { label: "Hoàn tất", count: consulted },
             ].map((row) => (

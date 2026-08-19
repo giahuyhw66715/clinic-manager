@@ -10,7 +10,7 @@ create extension if not exists pgcrypto;
 -- ----------------------------------------------------------------------------
 create type public.user_role as enum ('patient', 'doctor', 'pharmacist', 'admin');
 create type public.appointment_status as enum (
-  'pending', 'confirmed', 'checked-in', 'in-progress', 'completed', 'cancelled', 'no-show'
+  'pending', 'checked-in', 'in-progress', 'completed', 'cancelled', 'no-show'
 );
 create type public.prescription_status as enum ('sent', 'preparing', 'ready', 'delivered');
 create type public.severity as enum ('mild', 'moderate', 'severe');
