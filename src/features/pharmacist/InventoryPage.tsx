@@ -59,6 +59,15 @@ export function InventoryPage() {
 
   const lowCount = medications.filter((m) => m.stock_qty <= m.reorder_level).length;
 
+  const numericError = (label: string, value: string) =>
+    value.trim() !== "" && (Number.isNaN(Number(value)) || Number(value) < 0)
+      ? `${label} không được nhỏ hơn 0`
+      : "";
+  const priceError = numericError("Giá", form.price);
+  const stockError = numericError("Tồn kho", form.stock_qty);
+  const reorderError = numericError("Ngưỡng nhập lại", form.reorder_level);
+  const hasNumericError = !!(priceError || stockError || reorderError);
+
   function openEditor(medication?: Medication) {
     setEditor({ medication: medication ?? null, open: true });
     setForm(
@@ -268,7 +277,7 @@ export function InventoryPage() {
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 placeholder="Mô tả (tùy chọn)"
-                maxLength={100}
+                maxLength={300}
               />
             </div>
             <div className="grid grid-cols-3 gap-3">
@@ -279,7 +288,10 @@ export function InventoryPage() {
                   min={0}
                   value={form.price}
                   onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+                  aria-invalid={!!priceError}
+                  className={priceError ? "border-destructive" : undefined}
                 />
+                {priceError && <p className="text-xs text-destructive">{priceError}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Tồn kho</Label>
@@ -288,7 +300,10 @@ export function InventoryPage() {
                   min={0}
                   value={form.stock_qty}
                   onChange={(e) => setForm((f) => ({ ...f, stock_qty: e.target.value }))}
+                  aria-invalid={!!stockError}
+                  className={stockError ? "border-destructive" : undefined}
                 />
+                {stockError && <p className="text-xs text-destructive">{stockError}</p>}
               </div>
               <div className="space-y-2">
                 <Label>Ngưỡng nhập lại</Label>
@@ -297,14 +312,17 @@ export function InventoryPage() {
                   min={0}
                   value={form.reorder_level}
                   onChange={(e) => setForm((f) => ({ ...f, reorder_level: e.target.value }))}
+                  aria-invalid={!!reorderError}
+                  className={reorderError ? "border-destructive" : undefined}
                 />
+                {reorderError && <p className="text-xs text-destructive">{reorderError}</p>}
               </div>
             </div>
           </div>
           <DialogFooter>
             <Button
               onClick={() => saveMutation.mutate()}
-              disabled={!form.name.trim() || saveMutation.isPending}
+              disabled={!form.name.trim() || hasNumericError || saveMutation.isPending}
             >
               {saveMutation.isPending ? "Đang lưu..." : "Lưu"}
             </Button>

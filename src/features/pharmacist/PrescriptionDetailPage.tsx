@@ -72,7 +72,7 @@ export function PrescriptionDetailPage() {
         <PrescriptionStatusBadge status={prescription.status} />
       </PageHeader>
 
-      <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+      <div className="grid items-start gap-6 lg:grid-cols-[300px_1fr]">
         <div className="space-y-4">
           <Card>
             <CardHeader>
@@ -88,35 +88,32 @@ export function PrescriptionDetailPage() {
               </p>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Thao tác</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
+            <CardHeader className="flex flex-row items-start justify-between gap-3">
+              <div>
+                <CardTitle className="text-base">Chi tiết thuốc</CardTitle>
+                <CardDescription>
+                  Tồn kho được trừ tự động khi đơn thuốc được gửi.
+                </CardDescription>
+              </div>
               {nextAction ? (
                 <Button
-                  className="w-full"
-                  onClick={() => statusMutation.mutate({ id: prescription.id, status: nextAction.status })}
+                  onClick={() =>
+                    statusMutation.mutate({ id: prescription.id, status: nextAction.status })
+                  }
                   disabled={statusMutation.isPending}
                 >
                   <nextAction.icon className="h-4 w-4" /> {nextAction.label}
                 </Button>
               ) : (
-                <Badge variant="success" className="w-full justify-center">
+                <Badge variant="success" className="shrink-0">
                   Hoàn tất
                 </Badge>
               )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Chi tiết thuốc</CardTitle>
-            <CardDescription>
-              Tồn kho được trừ tự động khi đơn thuốc được gửi.
-            </CardDescription>
-          </CardHeader>
+            </CardHeader>
           <CardContent>
             <ul className="space-y-2">
               {prescription.items.map((item) => (
@@ -147,7 +144,21 @@ export function PrescriptionDetailPage() {
               <span className="text-sm font-semibold">Tổng cộng: {formatCurrency(total)}</span>
             </div>
           </CardContent>
-        </Card>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Ghi chú của bác sĩ</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              {prescription.notes ? (
+                <p className="whitespace-pre-line text-muted-foreground">{prescription.notes}</p>
+              ) : (
+                <p className="text-muted-foreground">Không có ghi chú</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
