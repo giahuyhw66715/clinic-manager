@@ -50,7 +50,9 @@ export function CheckInPage() {
   });
 
   const pending = appointments.filter((a) => a.status === "pending");
-  const checkedIn = appointments.filter((a) => a.status === "checked-in" || a.status === "in-progress");
+  const checkedIn = appointments.filter(
+    (a) => a.status === "checked-in" || a.status === "in-progress" || a.status === "completed",
+  );
 
   return (
     <div className="space-y-6">
